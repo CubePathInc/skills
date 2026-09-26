@@ -14,15 +14,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-go@v5
-        with:
-          go-version: stable
-
       - name: Install the latest cubecli release
-        run: go install github.com/CubePathInc/cubecli@latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/cubecli" && cd "$RUNNER_TEMP/cubecli"
+          gh release download -R CubePathInc/cubecli -p 'cubecli_*_linux_amd64.tar.gz' -p checksums.txt
+          sha256sum -c checksums.txt --ignore-missing
+          tar -xzf cubecli_*_linux_amd64.tar.gz
+          ./cubecli version
+          echo "$RUNNER_TEMP/cubecli" >> "$GITHUB_PATH"
 
       - name: Regenerate the command reference
-        run: CUBECLI="$(go env GOPATH)/bin/cubecli" scripts/generate-reference.sh
+        run: scripts/generate-reference.sh
 
       - name: Reference must be up to date
         run: |
