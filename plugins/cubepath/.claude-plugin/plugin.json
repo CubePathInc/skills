@@ -1,0 +1,13 @@
+{
+  "name": "cubepath",
+  "description": "Deploy and manage CubePath infrastructure (VPS, baremetal, networking, DNS, CDN, Kubernetes) with the cubecli command-line tool.",
+  "version": "0.1.0",
+  "author": {
+    "name": "CubePath",
+    "email": "support@cubepath.com"
+  },
+  "homepage": "https://cubepath.com",
+  "repository": "https://github.com/CubePathInc/skills",
+  "license": "MIT",
+  "keywords": ["cubepath", "cloud", "vps", "kubernetes", "dns", "cdn", "cubecli"]
+}

@@ -1,0 +1,35 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1" # weekly: catch cubecli releases that changed the commands
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Install the latest cubecli release
+        run: go install github.com/CubePathInc/cubecli@latest
+
+      - name: Regenerate the command reference
+        run: CUBECLI="$(go env GOPATH)/bin/cubecli" scripts/generate-reference.sh
+
+      - name: Reference must be up to date
+        run: |
+          if ! git diff --exit-code -- plugins; then
+            echo "::error::The vendored cubecli reference is stale. Run scripts/generate-reference.sh with the latest cubecli and commit."
+            exit 1
+          fi
+
+      - name: Validate skills
+        run: python3 scripts/validate.py

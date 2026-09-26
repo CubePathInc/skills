@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "min_cubecli_version": "1.6.0",
+  "skills": [
+    "cubepath-cli",
+    "cubepath-vps",
+    "cubepath-networking",
+    "cubepath-dns-cdn",
+    "cubepath-kubernetes"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "cubepath",
+  "description": "Official CubePath skills for AI coding agents",
+  "owner": {
+    "name": "CubePath",
+    "email": "support@cubepath.com"
+  },
+  "plugins": [
+    {
+      "name": "cubepath",
+      "source": "./plugins/cubepath",
+      "description": "Deploy and manage CubePath infrastructure (VPS, baremetal, networking, DNS, CDN, Kubernetes) with the cubecli command-line tool.",
+      "category": "cloud"
+    }
+  ]
+}
