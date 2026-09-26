@@ -23,6 +23,7 @@ Generated from the cubecli command tree with `cubecli docs markdown`. Do not edi
 - `location`: Manage locations
 - `login`: Log in to CubePath in the browser and store the session in a profile
 - `logout`: Revoke the session of a profile and remove its credentials
+- `mcp`: Connect the CubePath MCP server to your AI agents
 - `nat-gateway`: Manage NAT gateways
 - `network`: Manage networks
 - `profile`: Manage authentication profiles

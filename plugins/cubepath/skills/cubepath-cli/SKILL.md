@@ -124,7 +124,9 @@ cubecli prints the API's `detail` message. Common ones:
 
 ## Other tools
 
-- **MCP server**: agents without a shell can use the CubePath MCP server at
-  `https://mcp.cubepath.com/mcp`, which exposes the same operations as tools.
+- **MCP server**: the CubePath MCP server (`https://mcp.cubepath.com/mcp`)
+  exposes the same operations as tools, for agents without a shell. If the user
+  wants it, `cubecli mcp install` adds it to their agents; they then approve
+  the access in the browser.
 - **Terraform**: for infrastructure the user wants versioned as code, see the
   `cubepath-terraform` skill.

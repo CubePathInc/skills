@@ -21,6 +21,7 @@ Usage: `cubecli auth login [profile] [flags]`
 
 - `--api-url string`: API URL for this profile (kept from the existing profile if omitted)
 - `--no-browser`: Print the login URL instead of opening a browser
+- `--skip-mcp`: Do not offer to add the CubePath MCP server to AI agents
 - `--skip-skills`: Do not offer to install the CubePath skills for AI agents
 - `--token`: Store an API token instead of logging in with the browser
 - `--use`: Make this the active profile
