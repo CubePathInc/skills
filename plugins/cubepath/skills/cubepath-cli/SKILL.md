@@ -23,8 +23,10 @@ cubecli auth status --json
 - **Not installed**: tell the user and offer the install command. Do not run it
   without their OK:
   `curl -fsSL https://raw.githubusercontent.com/CubePathInc/cubecli/main/install.sh | sh`
-- **No profile, or "logged out"**: ask the user to run `cubecli login` themselves.
-  It opens a browser to approve access, so it cannot be completed by you.
+- **No profile, or "logged out"**: ask the user to run `cubecli login` themselves
+  in their terminal. It asks for an API token (created at
+  https://my.cubepath.com/organization/tokens) or opens a browser, so it cannot
+  be completed by you.
 - **`env_token: true`**: `CUBE_API_TOKEN` is set and overrides every profile.
 
 Never ask for, print, copy or store API tokens or OAuth tokens. Never read or edit
@@ -45,8 +47,9 @@ If the user names a company, brand or account, pick the matching profile with
 `cubecli profile use`, which would affect their other terminals.
 
 `Access: read-only` means the session can list but not create or change
-resources. Ask the user to run `cubecli login <profile>` again and tick the write
-permissions on the consent screen.
+resources. Ask the user to log in again with `cubecli login <profile>` and grant
+write access. `Access: unusable` means the profile must be logged in again with
+`cubecli login <profile> --token`.
 
 ## 3. Always use `--json`
 

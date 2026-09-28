@@ -21,7 +21,7 @@ Generated from the cubecli command tree with `cubecli docs markdown`. Do not edi
 - `kubernetes`: Manage Kubernetes clusters
 - `lb`: Manage load balancers
 - `location`: Manage locations
-- `login`: Log in to CubePath in the browser and store the session in a profile
+- `login`: Log in to CubePath and store the credentials in a profile
 - `logout`: Revoke the session of a profile and remove its credentials
 - `mcp`: Connect the CubePath MCP server to your AI agents
 - `nat-gateway`: Manage NAT gateways

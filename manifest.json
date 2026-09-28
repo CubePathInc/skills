@@ -1,5 +1,5 @@
 {
-  "version": "0.1.1",
+  "version": "0.1.2",
   "min_cubecli_version": "1.6.0",
   "skills": [
     "cubepath-cli",

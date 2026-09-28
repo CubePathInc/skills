@@ -4,26 +4,28 @@ Log in, log out and inspect credentials
 
 ## `cubecli auth login`
 
-Log in to CubePath in the browser and store the session in a profile
+Log in to CubePath and store the credentials in a profile
 
-Log in to CubePath through your browser and store the session in a profile.
+Log in to CubePath and store the credentials in a profile.
 
-Each profile holds the session of one organization, chosen on the consent
-screen. Log in once per organization and switch with 'cubecli profile use'
-or '--profile'.
+cubecli login signs you in through the browser when the CubePath API supports
+it; otherwise it asks for an API token, which you create at
+https://my.cubepath.com/organization/tokens.
+
+Each profile holds the credentials of one organization. Log in once per
+organization and switch with 'cubecli profile use' or '--profile'.
 
 Without a profile name, the active profile is used ('default' if none).
 
-For CI and other non-interactive use, store an API token instead with
-'--token', or set CUBE_API_TOKEN.
+For CI and other non-interactive use, pass '--token' or set CUBE_API_TOKEN.
 
 Usage: `cubecli auth login [profile] [flags]`
 
 - `--api-url string`: API URL for this profile (kept from the existing profile if omitted)
-- `--no-browser`: Print the login URL instead of opening a browser
+- `--no-browser`: For browser sign-in, print the URL instead of opening a browser
 - `--skip-mcp`: Do not offer to add the CubePath MCP server to AI agents
 - `--skip-skills`: Do not offer to install the CubePath skills for AI agents
-- `--token`: Store an API token instead of logging in with the browser
+- `--token`: Use an API token instead of the browser sign-in
 - `--use`: Make this the active profile
 
 Examples:
@@ -32,8 +34,7 @@ Examples:
   cubecli login
   cubecli login work
   cubecli login staging --api-url https://api.staging.cubepath.com
-  cubecli login --no-browser      # over SSH, no local browser
-  cubecli login ci --token        # store an API token
+  cubecli login ci --token        # always use an API token
 ```
 
 ## `cubecli auth logout`
