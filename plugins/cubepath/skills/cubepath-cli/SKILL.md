@@ -6,8 +6,8 @@ description: Use cubecli, the CubePath Cloud command-line tool, to inspect and m
 # cubecli basics
 
 `cubecli` is the official CLI for CubePath Cloud (VPS, baremetal, private networks,
-NAT gateways, floating IPs, load balancers, DNS, CDN, Kubernetes). Every other
-`cubepath-*` skill builds on the rules here.
+NAT gateways, floating IPs, load balancers, DNS, CDN, Kubernetes, Object Storage).
+Every other `cubepath-*` skill builds on the rules here.
 
 The exact commands and flags are in [reference/](reference/commands.md), generated
 from cubecli itself. Check them there or with `cubecli <group> <command> --help`
