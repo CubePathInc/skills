@@ -2,42 +2,6 @@
 
 Manage Object Storage buckets and access keys (S3 compatible)
 
-## `cubecli objectstorage bucket cdn connect`
-
-Connect a bucket to a CDN zone (creates a billable zone the first time)
-
-Connect a bucket to the CubePath CDN. The first connection creates a CDN zone
-(--zone-name and --plan required) that is billed like any CDN zone. A bucket
-that was connected before reuses its zone and ignores these flags.
-
-Traffic from the bucket to the CDN is not billed as egress; the edges' requests
-are class B requests of the bucket.
-
-Usage: `cubecli objectstorage bucket cdn connect <bucket> [flags]`
-
-- `--custom-domain string`: Optional custom domain for the new zone
-- `--plan string`: CDN plan name (first connection only; see 'cdn plan list')
-- `--zone-name string`: Name of the CDN zone to create (first connection only)
-
-Examples:
-
-```
-  cubecli s3 bucket cdn connect photos --zone-name photos --plan <plan>
-  cubecli s3 bucket cdn connect photos --zone-name photos --plan <plan> --custom-domain cdn.example.com
-```
-
-## `cubecli objectstorage bucket cdn disconnect`
-
-Disconnect a bucket from its CDN zone (the zone is kept)
-
-Disconnect a bucket from the CDN. The CDN stops reading the bucket, but the
-zone keeps existing (and billing) with its plan, domain and rules: delete it
-with 'cdn zone delete' if it is no longer needed, or reconnect the bucket later.
-
-Usage: `cubecli objectstorage bucket cdn disconnect <bucket> [flags]`
-
-- `-f, --force`: Skip confirmation prompt
-
 ## `cubecli objectstorage bucket create`
 
 Create a bucket (billed hourly while it exists)
@@ -139,7 +103,7 @@ Examples:
 
 ```
   cubecli s3 key create --name backups --tier ia
-  cubecli s3 key create --name web --tier ia --bucket photos --permission read_only --output env > .env
+  cubecli s3 key create --name web --tier ia --bucket photos --permission read_only --output env > .env.cubepath-storage
   cubecli s3 key create --name nightly --tier ia --expires-in 720h --output rclone >> ~/.config/rclone/rclone.conf
 ```
 

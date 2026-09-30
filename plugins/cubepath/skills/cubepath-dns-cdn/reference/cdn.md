@@ -110,10 +110,16 @@ Usage: `cubecli cdn metrics top-user-agents <zone_uuid> [flags]`
 
 Create a new CDN origin
 
+Create a CDN origin. An origin is either an address (--url or --address) or
+one of your Object Storage buckets (--bucket): the CDN then reads the bucket with a
+read-only key it manages, and deleting the origin disconnects the bucket. A bucket
+can be the origin of one zone at a time.
+
 Usage: `cubecli cdn origin create <zone_uuid> [flags]`
 
 - `--backup`: Mark origin as backup
 - `--base-path string`: Base path for the origin
+- `--bucket string`: Object Storage bucket (name or uuid) to serve through this zone
 - `--health-path string`: Health check path (default /health)
 - `--host-header string`: Host header override
 - `--no-health-check`: Disable health checks
@@ -126,9 +132,19 @@ Usage: `cubecli cdn origin create <zone_uuid> [flags]`
 - `-u, --url string`: Origin URL
 - `-w, --weight int`: Origin weight (default 100)
 
+Examples:
+
+```
+  cubecli cdn origin create <zone_uuid> --name web --url https://origin.example.com
+  cubecli cdn origin create <zone_uuid> --name photos --bucket photos
+```
+
 ## `cubecli cdn origin delete`
 
 Delete a CDN origin
+
+Delete a CDN origin. If the origin is an Object Storage bucket, this
+disconnects the bucket: the CDN stops reading it and its public URLs stop working.
 
 Usage: `cubecli cdn origin delete <zone_uuid> <origin_uuid> [flags]`
 

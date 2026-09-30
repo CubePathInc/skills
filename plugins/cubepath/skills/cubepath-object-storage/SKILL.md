@@ -114,29 +114,34 @@ are aborted after 7 days.
 
 ## Serve a bucket publicly through the CDN
 
-Connecting creates a CDN zone that reads the bucket with its own credentials.
-The zone is billed like any CDN zone; traffic from the bucket to the CDN is not
-billed as egress, but the edges' requests are class B requests of the bucket.
+A bucket is served publicly by adding it as the **origin** of a CDN zone. The
+CDN reads it with a read-only key it manages. A bucket can be the origin of one
+zone at a time. The zone is billed like any CDN zone. Traffic from the bucket
+to the CDN is not billed as egress, but the edges' requests count as class B
+requests of the bucket.
+
+Pick an existing zone (`cubecli cdn zone list --json`) or create one following
+the `cubepath-dns-cdn` skill (confirm the plan and price first, it is billable),
+then:
 
 ```bash
-cubecli cdn plan list --json
-cubecli objectstorage bucket cdn connect photos --zone-name photos --plan <plan> --json
+cubecli cdn origin create <zone_uuid> --name photos --bucket photos --json
 cubecli objectstorage bucket get photos --json | jq '.cdn'   # status connecting -> connected
 ```
 
-- Confirm the CDN plan and price first (billable).
-- Files are then public at `https://<zone>.cubecdn.io/<key>` (`.cdn.domain`).
-  `--custom-domain` adds the user's domain; follow the `cubepath-dns-cdn` skill
-  for its DNS record and `cubecli cdn zone request-ssl`.
-- A bucket that was connected before reuses its zone; the flags are ignored.
-- The zone's origin is managed by Object Storage: do not edit or delete it with
-  `cubecli cdn origin`. Cache rules, WAF and metrics of the zone work as usual.
+- `--bucket` takes the bucket's name or uuid and cannot be combined with
+  `--url`, `--address`, `--port`, `--protocol` or `--host-header`: the API fills
+  those in.
+- Files are then public at `https://<zone>.cubecdn.io/<key>` (`.cdn.domain`),
+  or on the zone's custom domain (see `cubepath-dns-cdn`).
+- Cache rules, WAF and metrics of the zone work as usual.
 
-Disconnecting stops the public URLs but **keeps the zone and its billing**.
-After the user confirms:
+To disconnect, delete that origin after the user confirms. The public URLs stop
+working, but the zone **and its billing stay**:
 
 ```bash
-cubecli objectstorage bucket cdn disconnect photos --force
+cubecli objectstorage bucket get photos --json | jq '.cdn | {zone_uuid, origin_uuid}'
+cubecli cdn origin delete <zone_uuid> <origin_uuid> --force
 cubecli cdn zone delete <zone_uuid> --force   # only if the user wants the zone gone too
 ```
 
@@ -171,7 +176,7 @@ Deleting is irreversible. Before asking the user, show the bucket's name, size
 and object count (`bucket get`).
 
 1. A protected bucket must be unprotected first (`--protected=false`).
-2. A bucket connected to the CDN must be disconnected first.
+2. A bucket connected to the CDN must be disconnected first (delete its CDN origin).
 3. Then, after explicit confirmation:
 
 ```bash
@@ -198,5 +203,5 @@ A project with buckets or access keys cannot be deleted until they are.
 | `Bucket limit reached (...)` / `Access key limit reached (...)` | Delete unused ones or ask support. |
 | `The bucket is busy with another operation.` (409) | Wait for `pending` or `deleting` to finish, then retry. |
 | `This bucket has been blocked by CubePath.` | Abuse or policy block; the user contacts support. |
-| 403 on a write | The session lacks `object_storage:write` (or `cdn:write` for the CDN commands): log in again granting write access. |
+| 403 on a write | The session lacks `object_storage:write` (or `cdn:write` for the CDN commands; adding a bucket as a CDN origin needs both): log in again granting write access. |
 | S3 `InvalidRequest` on upload | Bucket quota (1 TiB) reached or the key expired. |
