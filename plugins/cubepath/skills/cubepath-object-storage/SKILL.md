@@ -34,7 +34,8 @@ anything; never quote prices from memory.
 
 Bucket names are 3 to 63 characters (lowercase letters, numbers, hyphens,
 starting and ending with a letter or number) and **unique across all CubePath
-customers**. Names containing `cubepath`, `rustfs` or `minio` are reserved.
+customers**. Some names are reserved (anything containing `cubepath`, for
+example); the API answers 400 for those.
 
 1. Pick the project (see `cubepath-cli`) and the tier (`accepting_new` must be
    true).
