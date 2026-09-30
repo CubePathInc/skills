@@ -77,6 +77,10 @@ Health checks hit `--health-path` (default `/health`): set it to a path that
 returns 200 on the origin, or pass `--no-health-check`, otherwise a healthy
 origin may be marked down.
 
+An Object Storage bucket can be an origin too: `cubecli cdn origin create
+<zone_uuid> --name photos --bucket photos` (name or uuid, no address flags).
+Deleting that origin disconnects the bucket. See `cubepath-object-storage`.
+
 ### Rules
 
 `cdn rule create <zone_uuid> --name <n> --type <type> --match '<json>' --action '<json>'`
