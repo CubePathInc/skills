@@ -23,6 +23,7 @@ declare -a MAP=(
   "cubepath-networking:network nat-gateway floating-ip lb ddos-attack"
   "cubepath-dns-cdn:dns cdn"
   "cubepath-kubernetes:kubernetes"
+  "cubepath-object-storage:objectstorage"
 )
 
 for entry in "${MAP[@]}"; do
