@@ -22,6 +22,9 @@ Exact flags: [reference/objectstorage.md](reference/objectstorage.md).
 - Billing is hourly, in arrears, per bucket: stored GiB-month, egress GiB,
   class A (writes, lists) and class B (reads) requests. The free tier is per
   organization, month and tier. Only projects billed hourly can hold buckets.
+- Every bucket is **encrypted at rest** with AES-256 (SSE-S3), always on, at no
+  cost (`encryption` in `bucket get --json`). SSE-KMS is not available; SSE-C
+  (the client's own key in each request) works with any S3 client.
 
 ```bash
 cubecli objectstorage tiers --json   # .[] | {slug, uuid, endpoint, region, prices, free_tier, accepting_new}
