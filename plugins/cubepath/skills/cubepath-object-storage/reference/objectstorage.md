@@ -250,19 +250,25 @@ Usage: `cubecli objectstorage events destination delete <destination> [flags]`
 
 ## `cubecli objectstorage events destination deliveries`
 
-Show the latest deliveries of a destination (last 30 days)
+Show the latest deliveries of a destination, newest first
+
+Show the delivery history of a destination (90 days), newest first.
+
+failed is an attempt that is retried later; dead is an event given up after
+the last retry. When the page is full the next (older) page is printed as a
+--before value.
 
 Usage: `cubecli objectstorage events destination deliveries <destination> [flags]`
 
-- `--before string`: Only deliveries before this time, to page back
-- `--limit int`: Number of deliveries (default 50)
+- `--before string`: Only deliveries before this point: unix milliseconds (as printed) or a UTC time
+- `--limit int`: Number of deliveries, 1 to 200 (default 50)
 - `--status string`: Only success, failed or dead deliveries
 
 Examples:
 
 ```
   cubecli s3 events destination deliveries uploads-hook --status failed
-  cubecli s3 events destination deliveries uploads-hook --limit 100 --before 2026-10-01T00:00:00
+  cubecli s3 events destination deliveries uploads-hook --limit 200 --before 1790964001250
 ```
 
 ## `cubecli objectstorage events destination get`
