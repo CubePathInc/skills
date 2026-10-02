@@ -167,7 +167,7 @@ whole bucket with few days.
 - Rules are set with cubecli or the API only (S3
   `PutBucketLifecycleConfiguration` answers 403; reading them with S3 works).
 - `set` **replaces every rule** of the bucket: read them first with `get`.
-- Applying takes seconds, up to 10 minutes after a previous change of the same
+- Applying takes seconds, up to about 12 minutes after a previous change of the same
   bucket (`--wait` blocks until applied). Objects then go within 48 hours of
   their due date and are billed until they are gone.
 - In a **versioned** bucket an expiration only adds a delete marker and the old
