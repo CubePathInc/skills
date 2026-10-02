@@ -170,6 +170,30 @@ cubecli objectstorage bucket list --json                # .[] | {name, size_byte
 quantities are null but the costs are right. Sizes are refreshed every 15
 minutes.
 
+## Charts of one bucket
+
+```bash
+cubecli objectstorage bucket metrics photos --range 24h               # table: latest size, totals of the range
+cubecli objectstorage bucket metrics photos --range 7d --part traffic --json
+```
+
+`--range` is 1h, 3h, 6h, 12h, 24h, 3d, 7d or 30d; `--part` any of `storage`,
+`traffic`, `responses` (default all). `--json` prints every point:
+`storage` (`size_bytes`, `objects`, hourly, `storageMeasuredAt` = newest size
+sample), `traffic` (`egress_bytes`, `cdn_bytes`, `ingress_bytes`,
+`class_a_requests`, `class_b_requests`, `free_requests`: only the project's
+keys, status 2xx or 304, like the invoice) and `responses` (`responses_2xx` ...
+`responses_5xx`, `responses_429`, `responses_other`: every caller, anonymous
+included). Traffic and responses are totals per step (5 minutes up to 7 days,
+1 hour beyond), not rates; the monthly free tier is not subtracted. It reads the
+GraphQL API, which needs an API token (`CUBE_API_TOKEN=<token>`), not a browser
+login.
+
+Example, "how much egress did my bucket do yesterday?": run
+`cubecli objectstorage bucket metrics photos --range 3d --part traffic --json`
+and sum the `egress_bytes` points whose `ts` falls inside yesterday (UTC);
+`cdn_bytes` is traffic to the CDN, not billed as egress.
+
 ## Delete a bucket
 
 Deleting is irreversible. Before asking the user, show the bucket's name, size
