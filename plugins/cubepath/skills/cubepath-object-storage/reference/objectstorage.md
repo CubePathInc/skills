@@ -12,8 +12,13 @@ and hyphens, and are unique across all CubePath customers.
 The bucket is created asynchronously: it is usable once its status is active
 (usually 10 to 20 seconds). Uploads may answer 503 for the first minutes.
 
+Tags are labels to organize and filter buckets (at most 50; key up to 128 and
+value up to 256 characters). They are managed with cubecli, the API and the
+dashboard only: S3 bucket tagging calls are not supported.
+
 Usage: `cubecli objectstorage bucket create <name> [flags]`
 
+- `--tag stringArray`: Tag as key=value (repeatable)
 - `--tier string`: Storage tier: slug, uuid or ia (see 'objectstorage tiers') (required)
 - `--versioning`: Enable object versioning
 - `-p, --project int`: Project ID (default: the organization's first project)
@@ -23,6 +28,7 @@ Examples:
 ```
   cubecli objectstorage bucket create photos --tier ia
   cubecli s3 bucket create backups --tier infrequent_access --project 12 --versioning
+  cubecli s3 bucket create logs --tier ia --tag env=prod --tag team=data
 ```
 
 ## `cubecli objectstorage bucket delete`
@@ -54,16 +60,30 @@ List buckets
 
 Usage: `cubecli objectstorage bucket list [flags]`
 
+- `--tag stringArray`: Only buckets with this tag: key (any value) or key=value (repeatable, all must match, up to 10)
 - `--tier string`: Only buckets of this tier (slug, uuid or ia)
 - `-p, --project int`: Only buckets of this project ID
 
+Examples:
+
+```
+  cubecli s3 bucket list --tag env=prod --tag team
+```
+
 ## `cubecli objectstorage bucket update`
 
-Change a bucket's versioning or deletion protection
+Change a bucket's versioning, deletion protection or tags
+
+Change a bucket's versioning, deletion protection or tags.
+
+--tag replaces every tag of the bucket with the ones given; --clear-tags
+removes them all. Tags not given are not kept.
 
 Usage: `cubecli objectstorage bucket update <bucket> [flags]`
 
+- `--clear-tags`: Remove every tag of the bucket
 - `--protected`: Deletion protection: --protected or --protected=false
+- `--tag stringArray`: Tag as key=value (repeatable); replaces every tag of the bucket
 - `--versioning string`: enabled or suspended (versioning cannot be turned off once enabled)
 
 Examples:
@@ -71,6 +91,8 @@ Examples:
 ```
   cubecli s3 bucket update photos --versioning enabled
   cubecli s3 bucket update photos --protected=false
+  cubecli s3 bucket update photos --tag env=prod --tag team=web
+  cubecli s3 bucket update photos --clear-tags
 ```
 
 ## `cubecli objectstorage key create`
@@ -137,5 +159,6 @@ Show the month's Object Storage usage and cost per tier and bucket
 Usage: `cubecli objectstorage usage [flags]`
 
 - `--period string`: Month as YYYY-MM (default: current month, up to 12 months back)
+- `--tag stringArray`: Only buckets with this tag: key (any value) or key=value (repeatable, all must match, up to 10)
 - `--tier string`: Only this tier (slug, uuid or ia)
 - `-p, --project int`: Only buckets of this project ID

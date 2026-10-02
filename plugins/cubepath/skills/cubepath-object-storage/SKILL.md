@@ -1,6 +1,6 @@
 ---
 name: cubepath-object-storage
-description: Manage CubePath Object Storage (S3 compatible) with cubecli - storage tiers and prices, buckets, versioning and deletion protection, access keys for AWS CLI, rclone, boto3 and other S3 clients, serving a bucket publicly through the CubePath CDN, and monthly usage and cost. Use when the user wants S3 storage, a bucket, S3 credentials, to store backups or static files on CubePath, or to serve files from a bucket through a CDN.
+description: Manage CubePath Object Storage (S3 compatible) with cubecli - storage tiers and prices, buckets, versioning and deletion protection, bucket and object tags, access keys for AWS CLI, rclone, boto3 and other S3 clients, serving a bucket publicly through the CubePath CDN, and monthly usage and cost. Use when the user wants S3 storage, a bucket, S3 credentials, to store backups or static files on CubePath, or to serve files from a bucket through a CDN.
 ---
 
 # CubePath Object Storage
@@ -155,6 +155,50 @@ cubecli objectstorage bucket update photos --protected=false
 
 Versioning can be `enabled` or `suspended`, never turned back off. A bucket
 never changes tier or project.
+
+## Tags
+
+Bucket tags are `key=value` labels to organize buckets and filter lists and
+usage (by environment, team, customer...). They are free.
+
+```bash
+cubecli objectstorage bucket create logs --tier ia --tag env=prod --tag team=data --json
+cubecli objectstorage bucket list --tag env=prod --tag team --json   # key=value or just key; all must match
+cubecli objectstorage usage --tag team=data --json                   # cost of those buckets
+cubecli objectstorage bucket update logs --tag env=prod --tag team=web
+cubecli objectstorage bucket update logs --clear-tags
+```
+
+- `bucket update --tag` **replaces every tag**: to add one, read the current
+  ones first (`bucket get logs --json | jq '.tags'`) and pass them all again.
+- Rules: at most 50 tags per bucket; keys 1 to 128 characters, values 0 to 256;
+  letters, numbers, spaces and `_ . : / = + - @`. Keys cannot contain `=`,
+  start or end with a space, or start with `aws:`, `cp:` or `cubepath:`. A
+  list filter takes at most 10 `--tag`.
+- Bucket tags are CubePath metadata, not S3: `GetBucketTagging` and
+  `PutBucketTagging` answer 403 (for example Terraform's `aws_s3_bucket_tagging`).
+  Use cubecli, the API, the dashboard or the `tags` of the CubePath Terraform
+  and Ansible bucket resources.
+
+### Object tags
+
+Objects take standard S3 object tagging (up to 10 tags per object) with any S3
+client, for example to classify files:
+
+```bash
+aws s3api put-object-tagging --bucket logs --key 2026/09/app.log.gz \
+  --tagging 'TagSet=[{Key=class,Value=archive},{Key=team,Value=data}]' \
+  --endpoint-url https://eu.cubestorage.io --region eu
+aws s3api get-object-tagging --bucket logs --key 2026/09/app.log.gz \
+  --endpoint-url https://eu.cubestorage.io --region eu
+aws s3api put-object --bucket logs --key report.pdf --body ./report.pdf \
+  --tagging 'class=archive' --endpoint-url https://eu.cubestorage.io --region eu
+```
+
+boto3: `put_object(..., Tagging="class=archive&team=data")` or
+`put_object_tagging(...)`. Put object tagging counts as a class A request, get
+as class B, and delete is free. A read-only key can read object tags but not
+change them.
 
 ## Usage and cost
 
