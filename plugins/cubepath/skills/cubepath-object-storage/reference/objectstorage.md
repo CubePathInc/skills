@@ -54,6 +54,52 @@ Usage: `cubecli objectstorage bucket get <bucket>`
 
 Aliases: show
 
+## `cubecli objectstorage bucket lifecycle delete`
+
+Remove every lifecycle rule of a bucket
+
+Remove every lifecycle rule of a bucket: nothing is deleted by rules from then on.
+Incomplete multipart uploads are still aborted after 7 days.
+
+Usage: `cubecli objectstorage bucket lifecycle delete <bucket> [flags]`
+
+- `--wait-timeout duration`: With --wait: give up after this long (default 15m0s)
+- `--wait`: Wait until the rules are applied
+- `-f, --force`: Skip confirmation prompt
+
+## `cubecli objectstorage bucket lifecycle get`
+
+Show a bucket's lifecycle rules and whether they are applied
+
+Usage: `cubecli objectstorage bucket lifecycle get <bucket>`
+
+## `cubecli objectstorage bucket lifecycle set`
+
+Replace every lifecycle rule of a bucket
+
+Replace every lifecycle rule of a bucket, from a JSON file (--file rules.json, or
+--file - for stdin) or, for the common case, one expiration rule built from flags:
+
+  cubecli s3 bucket lifecycle set logs --expire-days 30 --prefix logs/
+
+Rule format: {"id": "logs-30d", "enabled": true, "filter": {"prefix": "logs/"},
+"expiration": {"days": 30}}. Also "expiration": {"date": "2027-01-01"} or
+{"expired_object_delete_marker": true}, "noncurrent_version_expiration":
+{"noncurrent_days": 30, "newer_noncurrent_versions": 3} and
+"abort_incomplete_multipart_upload": {"days_after_initiation": 2}. Up to 100 rules.
+
+Expiration rules delete objects permanently. --wait returns once the rules are applied.
+
+Usage: `cubecli objectstorage bucket lifecycle set <bucket> [flags]`
+
+- `--expire-days int`: Build one rule that deletes objects this many days after they are written
+- `--file string`: JSON file with the rules ({"rules": [...]} or [...]); - reads stdin
+- `--id string`: With --expire-days: the rule ID (default expire-<days>d)
+- `--prefix string`: With --expire-days: only objects whose key starts with this prefix
+- `--wait-timeout duration`: With --wait: give up after this long (default 15m0s)
+- `--wait`: Wait until the rules are applied
+- `-f, --force`: Skip confirmation prompt
+
 ## `cubecli objectstorage bucket list`
 
 List buckets

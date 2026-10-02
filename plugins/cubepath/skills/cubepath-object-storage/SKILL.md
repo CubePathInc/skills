@@ -1,6 +1,6 @@
 ---
 name: cubepath-object-storage
-description: Manage CubePath Object Storage (S3 compatible) with cubecli - storage tiers and prices, buckets, versioning and deletion protection, bucket and object tags, access keys for AWS CLI, rclone, boto3 and other S3 clients, temporary share links (presigned URLs), serving a bucket publicly through the CubePath CDN, bucket charts, monthly usage and cost, and usage or budget alerts. Use when the user wants S3 storage, a bucket, S3 credentials, to store backups or static files on CubePath, to share a file with a temporary link, or to serve files from a bucket through a CDN.
+description: Manage CubePath Object Storage (S3 compatible) with cubecli - storage tiers and prices, buckets, versioning and deletion protection, bucket and object tags, access keys for AWS CLI, rclone, boto3 and other S3 clients, temporary share links (presigned URLs), serving a bucket publicly through the CubePath CDN, lifecycle rules that delete old objects or versions, bucket charts, monthly usage and cost, and usage or budget alerts. Use when the user wants S3 storage, a bucket, S3 credentials, to store backups or static files on CubePath, to share a file with a temporary link, to expire old files automatically, or to serve files from a bucket through a CDN.
 ---
 
 # CubePath Object Storage
@@ -110,7 +110,7 @@ Limits worth knowing: 5 GiB per single PUT (larger files use multipart, 5 MiB
 to 5 GiB parts, up to 10,000 parts); 1 TiB per bucket; presigned URLs last at
 most 24 hours and must be SigV4; direct downloads are served as attachments;
 browser uploads with CORS need path style URLs; incomplete multipart uploads
-are aborted after 7 days.
+are always aborted 7 days after they start.
 
 ## Share a file
 
@@ -224,6 +224,48 @@ boto3: `put_object(..., Tagging="class=archive&team=data")` or
 `put_object_tagging(...)`. Put object tagging counts as a class A request, get
 as class B, and delete is free. A read-only key can read object tags but not
 change them.
+
+## Lifecycle rules
+
+Lifecycle rules delete objects in the background, **permanently**: current
+objects after N days or on a date, noncurrent versions of a versioned bucket,
+delete markers left without versions, incomplete multipart uploads. Confirm
+with the user before setting or changing rules, especially one that covers the
+whole bucket with few days.
+
+- Rules are set with cubecli or the API only (S3
+  `PutBucketLifecycleConfiguration` answers 403; reading them with S3 works).
+- `set` **replaces every rule** of the bucket: read them first with `get`.
+- Applying takes seconds, up to about 12 minutes after a previous change of the same
+  bucket (`--wait` blocks until applied). Objects then go within 48 hours of
+  their due date and are billed until they are gone.
+- In a **versioned** bucket an expiration only adds a delete marker and the old
+  version keeps being billed: add a `noncurrent_version_expiration` rule.
+- On a bucket with Object Lock, rules never remove versions still under
+  retention. While a bucket is blocked or on hold the rules are paused.
+
+```bash
+cubecli objectstorage bucket lifecycle get photos --json
+cubecli objectstorage bucket lifecycle set logs --expire-days 30 --prefix logs/ --wait
+cubecli objectstorage bucket lifecycle set photos --file rules.json --wait   # or --file - (stdin)
+cubecli objectstorage bucket lifecycle delete photos --force                  # after the user confirms
+```
+
+`rules.json` (up to 100 rules; IDs of letters, numbers, `.`, `-`, `_`):
+
+```json
+{"rules": [
+  {"id": "tmp-7d", "enabled": true, "filter": {"prefix": "tmp/"}, "expiration": {"days": 7}},
+  {"id": "old-versions", "enabled": true,
+   "noncurrent_version_expiration": {"noncurrent_days": 30, "newer_noncurrent_versions": 3}},
+  {"id": "markers", "enabled": true, "expiration": {"expired_object_delete_marker": true}},
+  {"id": "uploads", "enabled": true, "abort_incomplete_multipart_upload": {"days_after_initiation": 2}}
+]}
+```
+
+Other expirations: `{"date": "2027-01-01"}` (after today, UTC). Filters can
+also take `tags` (`[{"key": "class", "value": "temp"}]`, up to 10),
+`object_size_greater_than` and `object_size_less_than` (bytes).
 
 ## Usage and cost
 
