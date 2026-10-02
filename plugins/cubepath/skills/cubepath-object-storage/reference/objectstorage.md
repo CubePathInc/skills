@@ -70,6 +70,22 @@ Examples:
   cubecli s3 bucket list --tag env=prod --tag team
 ```
 
+## `cubecli objectstorage bucket metrics`
+
+Show a bucket's stored size, traffic and responses over a time range
+
+Show the charts of a bucket: stored size and objects (hourly, the value billing
+uses), billable traffic (egress, CDN, ingress, class A, class B and free requests of
+the project's keys) and every response by status class.
+
+Traffic and responses are totals per step, not rates; the table shows their sum over
+the range and the stored size its latest value. --json prints every point.
+
+Usage: `cubecli objectstorage bucket metrics <bucket> [flags]`
+
+- `--part string`: Comma separated parts: storage, traffic, responses (default: all)
+- `--range string`: Time range: 1h, 3h, 6h, 12h, 24h, 3d, 7d or 30d (default 24h)
+
 ## `cubecli objectstorage bucket update`
 
 Change a bucket's versioning, deletion protection or tags
