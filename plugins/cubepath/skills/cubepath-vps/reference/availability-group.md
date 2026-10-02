@@ -36,6 +36,16 @@ Usage: `cubecli availability-group list <project_id> [flags]`
 
 - `-l, --location string`: Filter by location
 
+## `cubecli availability-group move-project`
+
+Move a availability group to another project in the same organization
+
+Usage: `cubecli availability-group move-project <group_uuid> [flags]`
+
+Aliases: move
+
+- `-p, --project int`: Target project ID (required)
+
 ## `cubecli availability-group remove-vps`
 
 Remove a VPS from an availability group

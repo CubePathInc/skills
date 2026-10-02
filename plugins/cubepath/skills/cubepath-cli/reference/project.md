@@ -30,3 +30,11 @@ Usage: `cubecli project list`
 Show project details
 
 Usage: `cubecli project show <project_id>`
+
+## `cubecli project update`
+
+Rename a project
+
+Usage: `cubecli project update <project_id> [flags]`
+
+- `-n, --name string`: New name (2-50 characters) (required)

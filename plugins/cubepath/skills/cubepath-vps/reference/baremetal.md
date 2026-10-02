@@ -25,6 +25,12 @@ Create an IPMI proxy session
 
 Usage: `cubecli baremetal ipmi <id>`
 
+## `cubecli baremetal kvm`
+
+Show the KVM console URL and credentials of a server
+
+Usage: `cubecli baremetal kvm <id>`
+
 ## `cubecli baremetal list`
 
 List baremetal servers
@@ -61,6 +67,41 @@ Show monitoring status for a baremetal server
 
 Usage: `cubecli baremetal monitoring status <id>`
 
+## `cubecli baremetal move-project`
+
+Move a baremetal server to another project in the same organization
+
+Usage: `cubecli baremetal move-project <id> [flags]`
+
+Aliases: move
+
+- `-p, --project int`: Target project ID (required)
+
+## `cubecli baremetal network attach`
+
+Attach a server to a private network in its location
+
+Attach a baremetal server to a private network. An address is picked
+automatically; restart the server to apply the change.
+
+Usage: `cubecli baremetal network attach <id> [flags]`
+
+- `--network int`: Private network ID (required)
+
+## `cubecli baremetal network detach`
+
+Detach a server from its private network
+
+Usage: `cubecli baremetal network detach <id> [flags]`
+
+- `-f, --force`: Skip confirmation prompt
+
+## `cubecli baremetal os`
+
+List the operating systems and disk layouts a server can be installed with
+
+Usage: `cubecli baremetal os <id>`
+
 ## `cubecli baremetal power restart`
 
 Restart a baremetal server
@@ -79,6 +120,23 @@ Power off a baremetal server
 
 Usage: `cubecli baremetal power stop <id>`
 
+## `cubecli baremetal protection`
+
+Enable or disable destruction protection
+
+Usage: `cubecli baremetal protection <id> [flags]`
+
+- `--disable`: Disable destruction protection
+- `--enable`: Enable destruction protection
+
+## `cubecli baremetal reinstall cancel`
+
+Cancel a pending or running reinstallation
+
+Usage: `cubecli baremetal reinstall cancel <id> [flags]`
+
+- `-f, --force`: Skip confirmation prompt
+
 ## `cubecli baremetal reinstall start`
 
 Start a baremetal server reinstallation
@@ -95,6 +153,8 @@ Usage: `cubecli baremetal reinstall start <id> [flags]`
 ## `cubecli baremetal reinstall status`
 
 Check reinstallation status
+
+Show whether an OS reinstallation is running: the server status is deploying while it runs.
 
 Usage: `cubecli baremetal reinstall status <id>`
 
@@ -123,6 +183,18 @@ Usage: `cubecli baremetal sensors <id>`
 Show baremetal server details
 
 Usage: `cubecli baremetal show <id>`
+
+## `cubecli baremetal ssh-key add`
+
+Add SSH keys to a server (used by the next install)
+
+Usage: `cubecli baremetal ssh-key add <id> <ssh_key_id>...`
+
+## `cubecli baremetal ssh-key remove`
+
+Remove an SSH key from a server
+
+Usage: `cubecli baremetal ssh-key remove <id> <ssh_key_id>`
 
 ## `cubecli baremetal update`
 

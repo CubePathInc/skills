@@ -85,11 +85,30 @@ Usage: `cubecli lb listener update <lb_uuid> <listener_uuid> [flags]`
 - `-a, --algorithm string`: New load balancing algorithm
 - `-n, --name string`: New name for the listener
 
+## `cubecli lb move-project`
+
+Move a load balancer to another project in the same organization
+
+Usage: `cubecli lb move-project <lb_uuid> [flags]`
+
+Aliases: move
+
+- `-p, --project int`: Target project ID (required)
+
 ## `cubecli lb plan list`
 
 List available load balancer plans
 
 Usage: `cubecli lb plan list`
+
+## `cubecli lb protection`
+
+Enable or disable destruction protection
+
+Usage: `cubecli lb protection <lb_uuid> [flags]`
+
+- `--disable`: Disable destruction protection
+- `--enable`: Enable destruction protection
 
 ## `cubecli lb resize`
 
@@ -115,6 +134,25 @@ Usage: `cubecli lb target add <lb_uuid> <listener_uuid> [flags]`
 - `-p, --port int`: Target port
 - `-t, --type string`: Target type (vps, baremetal, availability_group) (required)
 - `-w, --weight int`: Target weight (1-100) (default 100)
+
+## `cubecli lb target add-batch`
+
+Add up to 50 targets to a listener at once
+
+Add several targets in one operation; nothing is added if any of them is
+invalid. Give each with --target <type>:<id>[:port[:weight]], where type is vps,
+baremetal or availability_group, or pass a JSON array with --file.
+
+Usage: `cubecli lb target add-batch <lb_uuid> <listener_uuid> [flags]`
+
+- `--file string`: JSON array of {target_type, target_uuid, port, weight, enabled} ("-" for stdin)
+- `--target stringArray`: Target as <type>:<id>[:port[:weight]] (repeatable)
+
+Examples:
+
+```
+  cubecli lb target add-batch <lb_uuid> <listener_uuid> --target vps:101 --target vps:102:8080:50
+```
 
 ## `cubecli lb target drain`
 

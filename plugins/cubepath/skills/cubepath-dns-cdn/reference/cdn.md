@@ -2,6 +2,31 @@
 
 Manage CDN zones and distribution
 
+## `cubecli cdn cache purge`
+
+Purge paths, path prefixes or the whole cache of a zone
+
+Purge cached content on every edge location. Give up to 100 paths
+starting with "/"; a trailing "*" purges every URL under a prefix. --everything
+purges the whole zone. Both the system and the custom domain are purged.
+
+Usage: `cubecli cdn cache purge <zone_uuid> [path...] [flags]`
+
+- `--everything`: Purge the whole cache of the zone
+
+Examples:
+
+```
+  cubecli cdn cache purge <zone_uuid> /assets/app.css "/images/*"
+  cubecli cdn cache purge <zone_uuid> --everything
+```
+
+## `cubecli cdn cache purges`
+
+Show the latest 20 purges and their progress per edge location
+
+Usage: `cubecli cdn cache purges <zone_uuid>`
+
 ## `cubecli cdn metrics bandwidth`
 
 Show CDN bandwidth metrics
@@ -220,6 +245,43 @@ Usage: `cubecli cdn rule update <zone_uuid> <rule_uuid> [flags]`
 - `-m, --match string`: New match conditions (JSON string)
 - `-n, --name string`: New name for the rule
 - `-p, --priority int`: New priority
+
+## `cubecli cdn token-auth disable`
+
+Turn Token Auth off (the secret is kept)
+
+Usage: `cubecli cdn token-auth disable <zone_uuid>`
+
+## `cubecli cdn token-auth enable`
+
+Turn Token Auth on (the first time prints the secret)
+
+Usage: `cubecli cdn token-auth enable <zone_uuid> [flags]`
+
+- `--ip-binding`: Bind signed URLs to the client IP (--ip-binding=false to unbind)
+
+## `cubecli cdn token-auth rotate-secret`
+
+Replace the secret; every URL signed before stops working
+
+Usage: `cubecli cdn token-auth rotate-secret <zone_uuid> [flags]`
+
+- `-f, --force`: Skip confirmation prompt
+
+## `cubecli cdn token-auth sign-url`
+
+Sign a URL of the zone
+
+Usage: `cubecli cdn token-auth sign-url <zone_uuid> <path> [flags]`
+
+- `--client-ip string`: Client IP (required when the zone binds tokens to IPs)
+- `--expires-in int`: Seconds the URL stays valid (60-604800) (default 3600)
+
+Examples:
+
+```
+  cubecli cdn token-auth sign-url <zone_uuid> /videos/clip.mp4 --expires-in 3600
+```
 
 ## `cubecli cdn waf create`
 

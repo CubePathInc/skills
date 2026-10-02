@@ -58,6 +58,15 @@ Usage: `cubecli vps change-password <vps_id> [flags]`
 
 - `-p, --new-password string`: New root password (required)
 
+## `cubecli vps console`
+
+Open a VNC console session (valid for 5 minutes)
+
+Open a VNC console session on a running VPS. Connect a noVNC client to the
+WebSocket URL and use the ticket as the VNC password within 5 minutes.
+
+Usage: `cubecli vps console <vps_id>`
+
 ## `cubecli vps create`
 
 Create a new VPS instance
@@ -120,6 +129,35 @@ Usage: `cubecli vps list [flags]`
 - `-l, --location string`: Filter by location
 - `-p, --project int`: Filter by project ID
 
+## `cubecli vps move-project`
+
+Move a VPS to another project in the same organization
+
+Usage: `cubecli vps move-project <vps_id> [flags]`
+
+Aliases: move
+
+- `-p, --project int`: Target project ID (required)
+
+## `cubecli vps network attach`
+
+Attach a VPS to a private network in its location
+
+Attach a VPS to a private network. An address is picked automatically
+(see 'vps show'); restart the VPS to apply the change.
+
+Usage: `cubecli vps network attach <vps_id> [flags]`
+
+- `--network int`: Private network ID (required)
+
+## `cubecli vps network detach`
+
+Detach a VPS from its private network
+
+Usage: `cubecli vps network detach <vps_id> [flags]`
+
+- `-f, --force`: Skip confirmation prompt
+
 ## `cubecli vps plan list`
 
 List available VPS plans
@@ -150,6 +188,15 @@ Stop a VPS instance
 
 Usage: `cubecli vps power stop <vps_id>`
 
+## `cubecli vps protection`
+
+Enable or disable destruction protection
+
+Usage: `cubecli vps protection <vps_id> [flags]`
+
+- `--disable`: Disable destruction protection
+- `--enable`: Enable destruction protection
+
 ## `cubecli vps reinstall`
 
 Reinstall a VPS with a new template
@@ -173,6 +220,18 @@ Usage: `cubecli vps resize <vps_id> [flags]`
 Show VPS details
 
 Usage: `cubecli vps show <vps_id>`
+
+## `cubecli vps ssh-key add`
+
+Add SSH keys to a VPS
+
+Usage: `cubecli vps ssh-key add <vps_id> <ssh_key_id>...`
+
+## `cubecli vps ssh-key remove`
+
+Remove an SSH key from a VPS
+
+Usage: `cubecli vps ssh-key remove <vps_id> <ssh_key_id>`
 
 ## `cubecli vps template list`
 

@@ -25,3 +25,11 @@ Usage: `cubecli ssh-key delete <key_id> [flags]`
 List SSH keys
 
 Usage: `cubecli ssh-key list`
+
+## `cubecli ssh-key update`
+
+Rename an SSH key
+
+Usage: `cubecli ssh-key update <key_id> [flags]`
+
+- `-n, --name string`: New name (required)

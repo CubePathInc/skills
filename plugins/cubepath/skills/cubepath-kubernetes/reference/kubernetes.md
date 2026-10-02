@@ -84,6 +84,18 @@ List load balancers targeting a cluster
 
 Usage: `cubecli kubernetes loadbalancers <cluster_uuid>`
 
+## `cubecli kubernetes metrics`
+
+Show cluster health metrics, or a node's with --node
+
+Show the cluster's health series (nodes ready, pending and failed pods, API
+latency) or, with --node, a node's readiness and usage plus its server's.
+
+Usage: `cubecli kubernetes metrics <cluster_uuid> [flags]`
+
+- `--node string`: Node name (see 'kubernetes show')
+- `--range string`: Time range: 1h, 3h, 6h, 12h, 24h, 3d, 7d, 30d (default 1h)
+
 ## `cubecli kubernetes move`
 
 Move a cluster to another project
@@ -156,6 +168,15 @@ List server plans compatible with Kubernetes
 Usage: `cubecli kubernetes plans [flags]`
 
 - `--version string`: Filter plans by Kubernetes version
+
+## `cubecli kubernetes protection`
+
+Enable or disable destruction protection
+
+Usage: `cubecli kubernetes protection <cluster_uuid> [flags]`
+
+- `--disable`: Disable destruction protection
+- `--enable`: Enable destruction protection
 
 ## `cubecli kubernetes show`
 
