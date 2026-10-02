@@ -1,6 +1,6 @@
 ---
 name: cubepath-object-storage
-description: Manage CubePath Object Storage (S3 compatible) with cubecli - storage tiers and prices, buckets, versioning and deletion protection, bucket and object tags, access keys for AWS CLI, rclone, boto3 and other S3 clients, temporary share links (presigned URLs), serving a bucket publicly through the CubePath CDN, lifecycle rules that delete old objects or versions, bucket charts, monthly usage and cost, and usage or budget alerts. Use when the user wants S3 storage, a bucket, S3 credentials, to store backups or static files on CubePath, to share a file with a temporary link, to expire old files automatically, or to serve files from a bucket through a CDN.
+description: Manage CubePath Object Storage (S3 compatible) with cubecli - storage tiers and prices, buckets, versioning and deletion protection, Object Lock (immutable WORM buckets for backups and retention), bucket and object tags, access keys for AWS CLI, rclone, boto3 and other S3 clients, temporary share links (presigned URLs), serving a bucket publicly through the CubePath CDN, lifecycle rules that delete old objects or versions, bucket charts, monthly usage and cost, and usage or budget alerts. Use when the user wants S3 storage, a bucket, S3 credentials, to store backups or static files on CubePath, immutable or ransomware proof backups (Veeam, Kopia, restic), to share a file with a temporary link, to expire old files automatically, or to serve files from a bucket through a CDN.
 ---
 
 # CubePath Object Storage
@@ -181,6 +181,85 @@ cubecli objectstorage bucket update photos --protected=false
 Versioning can be `enabled` or `suspended`, never turned back off. A bucket
 never changes tier or project.
 
+## Object Lock (immutable buckets)
+
+Object Lock (WORM) keeps object **versions** from being deleted or overwritten
+until their retention date. Use it for backups that ransomware or a leaked key
+must not destroy, and for records that must be kept for a fixed time.
+
+- It can **only be turned on when the bucket is created**, never later, and
+  never turned off. A lock bucket always has versioning `enabled` (it cannot be
+  suspended) and is created with deletion protection on.
+- The user must accept the Object Lock terms (`--accept-object-lock-terms`).
+  Ask them explicitly; never pass it on your own.
+- Retention protects versions: a plain delete still works but only adds a
+  delete marker, and every stored version keeps being billed until it can be
+  deleted, also while the bucket is suspended or blocked.
+
+Modes:
+
+| Mode | Who can delete before the date | Use it for |
+|---|---|---|
+| `governance` | only keys created with `--bypass-governance`, sending `x-amz-bypass-governance-retention: true` | protection against mistakes and stolen keys, short retention (days) |
+| `compliance` | **nobody**, CubePath included; the retention cannot be shortened or removed | legal or regulatory retention, immutable backups that must survive anyone |
+
+Compliance is only available once support enables it for the organization
+(otherwise 403 `Compliance mode is not enabled for your organization`). Before
+a compliance rule, warn the user that the data and its cost cannot be removed
+until every version expires; cubecli asks for confirmation unless `--yes`.
+
+```bash
+cubecli objectstorage bucket create backups --tier ia --object-lock \
+  --lock-mode governance --lock-days 30 --accept-object-lock-terms --json
+cubecli objectstorage bucket get backups --json | jq '.object_lock'   # {enabled, default_retention}
+cubecli objectstorage bucket object-lock set backups --mode governance --days 14
+cubecli objectstorage bucket object-lock set backups --remove
+```
+
+- The **default retention** (`--lock-mode` with `--lock-days` or
+  `--lock-years`, at most 3650 days or 10 years) applies to every version that
+  has no retention of its own, older versions included. It is set only with
+  cubecli, the API or the dashboard: S3 `PutBucketObjectLockConfiguration` is
+  denied.
+- A governance rule can be changed or removed at any time. A compliance rule
+  can only be kept or lengthened; turning compliance on or lengthening needs
+  `--accept-object-lock-terms` again.
+- Over S3, keys can read the lock configuration and retention, set retention
+  on objects and put or lift legal holds (`PutObjectRetention`,
+  `PutObjectLegalHold`). Read-only keys can only read them.
+
+Keys that may remove governance locked versions (read_write only; it cannot be
+changed on an existing key, create another):
+
+```bash
+cubecli objectstorage key create --name backup-admin --tier ia --bypass-governance --output env > .env
+```
+
+Keep the backup software's own key **without** bypass, so a compromised
+backup server cannot delete its backups.
+
+### Backup software
+
+- **Without compliance enabled for the organization** the bucket's default
+  retention protects everything, but software that sets a retention per object
+  gets 403 on those uploads. Use a bucket default retention and turn off the
+  software's own object lock or immutability option: restic and plain
+  `aws s3`/rclone uploads work this way.
+- **Veeam Backup & Replication** (12 or later): create the bucket with
+  `--object-lock` (default retention optional), a read_write key without
+  bypass, and add it as an S3 compatible repository with endpoint
+  `https://eu.cubestorage.io`, region `eu`, ticking "Make recent backups
+  immutable". Veeam sets compliance retention on each object, so it needs
+  compliance enabled for the organization; ask support first.
+- **Kopia**: `kopia repository create s3 --endpoint eu.cubestorage.io --region eu
+  --bucket backups --retention-mode COMPLIANCE --retention-period 720h ...`
+  also sets per object retention, so it needs compliance enabled. Without it,
+  create the repository without `--retention-mode` and rely on the bucket's
+  default retention.
+- Old versions accumulate (there are no lifecycle rules for customers); the
+  backup tool's own maintenance removes them once their retention ends, and
+  they are billed until then.
+
 ## Tags
 
 Bucket tags are `key=value` labels to organize buckets and filter lists and
@@ -348,6 +427,18 @@ cubecli objectstorage bucket delete photos --purge --force    # deletes every ob
 - Large buckets stay `deleting` for a while. The name stays reserved for the
   organization for 90 days.
 
+With Object Lock, versions still under retention or legal hold are never
+deleted, not even with `--purge`. The bucket comes back with
+`locked_content_kept: true` and an error message, keeps being billed for what
+is left, and cannot be deleted (nor its project) until that retention ends;
+then delete it again. To also remove versions under governance retention:
+
+```bash
+cubecli objectstorage bucket delete backups --purge --bypass-governance --force
+```
+
+Compliance versions and legal holds are always kept until they expire.
+
 A project with buckets or access keys cannot be deleted until they are.
 
 ## Errors
@@ -360,5 +451,10 @@ A project with buckets or access keys cannot be deleted until they are.
 | `Bucket limit reached (...)` / `Access key limit reached (...)` | Delete unused ones or ask support. |
 | `The bucket is busy with another operation.` (409) | Wait for `pending` or `deleting` to finish, then retry. |
 | `This bucket has been blocked by CubePath.` | Abuse or policy block; the user contacts support. |
+| `Object Lock is not enabled on this bucket. It can only be enabled when the bucket is created.` | Create a new bucket with `--object-lock` and copy the data. |
+| `Compliance mode is not enabled for your organization.` | Use `governance`, or the user asks support to enable compliance. |
+| `A compliance default retention cannot be removed or shortened.` | Expected: compliance can only be kept or lengthened. |
+| `Some objects are still protected by Object Lock ...` | The delete kept locked versions; delete again when their retention ends. |
+| S3 403 on an upload with object lock headers, or `AccessDenied` deleting a version | Compliance not enabled (per object retention), or the version is under retention: see "Object Lock". |
 | 403 on a write | The session lacks `object_storage:write` (or `cdn:write` for the CDN commands; adding a bucket as a CDN origin needs both): log in again granting write access. |
 | S3 `InvalidRequest` on upload | Bucket quota (1 TiB) reached or the key expired. |
