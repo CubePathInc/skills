@@ -22,13 +22,8 @@ Exact flags: [reference/objectstorage.md](reference/objectstorage.md).
 - Billing is hourly, in arrears, per bucket: stored GiB-month, egress GiB,
   class A (writes, lists) and class B (reads) requests. The free tier is per
   organization, month and tier. Only projects billed hourly can hold buckets.
-- **Encryption at rest** (AES-256, SSE-S3, no cost) is optional and **on by
-  default**: `bucket create --no-encryption` skips it. It can be enabled later
-  with `cubecli objectstorage bucket encryption enable <bucket>` (the objects
-  already stored are encrypted in the background; in a versioned bucket only
-  the current versions), but it can **never be turned off**, so confirm with
-  the user first (`--force` skips the prompt). `encryption` in
-  `bucket get --json` is null while it is off. SSE-KMS is not available; SSE-C
+- Every bucket is **encrypted at rest** with AES-256 (SSE-S3), always on, at no
+  cost (`encryption` in `bucket get --json`). SSE-KMS is not available; SSE-C
   (the client's own key in each request) works with any S3 client.
 
 ```bash
