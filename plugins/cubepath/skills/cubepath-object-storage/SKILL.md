@@ -1,6 +1,6 @@
 ---
 name: cubepath-object-storage
-description: Manage CubePath Object Storage (S3 compatible) with cubecli - storage tiers and prices, buckets, versioning and deletion protection, bucket and object tags, access keys for AWS CLI, rclone, boto3 and other S3 clients, serving a bucket publicly through the CubePath CDN, and monthly usage and cost. Use when the user wants S3 storage, a bucket, S3 credentials, to store backups or static files on CubePath, or to serve files from a bucket through a CDN.
+description: Manage CubePath Object Storage (S3 compatible) with cubecli - storage tiers and prices, buckets, versioning and deletion protection, bucket and object tags, access keys for AWS CLI, rclone, boto3 and other S3 clients, temporary share links (presigned URLs), serving a bucket publicly through the CubePath CDN, and monthly usage and cost. Use when the user wants S3 storage, a bucket, S3 credentials, to store backups or static files on CubePath, to share a file with a temporary link, or to serve files from a bucket through a CDN.
 ---
 
 # CubePath Object Storage
@@ -111,6 +111,31 @@ to 5 GiB parts, up to 10,000 parts); 1 TiB per bucket; presigned URLs last at
 most 24 hours and must be SigV4; direct downloads are served as attachments;
 browser uploads with CORS need path style URLs; incomplete multipart uploads
 are aborted after 7 days.
+
+## Share a file
+
+To give someone a temporary download link to one object, sign a presigned URL
+with one of the user's access keys. It is signed locally: the secret is never
+sent to CubePath or anywhere else.
+
+```bash
+# credentials from the environment (or --access-key / --secret-key)
+cubecli objectstorage presign photos/2026/report.pdf --expires 6h --json   # {url, expires_at}
+```
+
+- At most 24 hours (`--expires 24h`); longer is refused. The receiver needs no
+  account and no key.
+- The file is always downloaded as an attachment, never shown inline: to serve
+  files to the public, connect the bucket to the CDN (next section).
+- Every download is egress of the bucket and a class B request, billed to the
+  organization. Tell the user before sharing a large file widely.
+- Revocation: the only way to cut a link before it expires is to delete the
+  access key that signed it (which also breaks everything else using that key).
+  Sign with a dedicated read-only key limited to the bucket when the user may
+  want to revoke. The dashboard's "Revoke all links" only affects links created
+  from the dashboard, not URLs signed with the user's own keys.
+- Keys that start with `/` or contain `//` cannot be shared this way.
+- `--endpoint https://eu.cubestorage.io --region eu` signs without a login.
 
 ## Serve a bucket publicly through the CDN
 

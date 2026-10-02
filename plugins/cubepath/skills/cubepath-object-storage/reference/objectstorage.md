@@ -146,6 +146,40 @@ Usage: `cubecli objectstorage key list [flags]`
 - `--tier string`: Only keys of this tier (slug, uuid or ia)
 - `-p, --project int`: Only keys of this project ID
 
+## `cubecli objectstorage presign`
+
+Create a temporary download link for an object, signed locally
+
+Create a presigned GET URL for one object. It is signed on this machine with
+an access key of yours: the secret is never sent anywhere.
+
+Anyone with the URL can download the object until it expires (at most 24 hours).
+The file is always downloaded as an attachment, and every download counts as
+egress of the bucket. To cut every URL signed with a key before it expires,
+delete that access key.
+
+Credentials come from --access-key/--secret-key or the AWS_ACCESS_KEY_ID and
+AWS_SECRET_ACCESS_KEY environment variables (preferred: flags end up in the
+shell history). The endpoint and region come from the bucket's tier, which
+needs a logged-in profile; with --endpoint the command works offline.
+
+Usage: `cubecli objectstorage presign <bucket>/<key> [flags]`
+
+- `--access-key string`: Access key ID (default: $AWS_ACCESS_KEY_ID)
+- `--endpoint string`: S3 endpoint URL; skips the API lookup, so no login is needed
+- `--expires duration`: How long the URL works, as a Go duration (1m, 6h, 24h); at most 24h (default 1h0m0s)
+- `--region string`: Signing region (default: the tier's region, or eu with --endpoint)
+- `--secret-key string`: Secret access key (default: $AWS_SECRET_ACCESS_KEY)
+- `--tier string`: Tier of the bucket (slug, uuid or ia); default: the bucket's tier
+
+Examples:
+
+```
+  AWS_ACCESS_KEY_ID=CP... AWS_SECRET_ACCESS_KEY=... cubecli s3 presign photos/2026/report.pdf --expires 1h
+  cubecli s3 presign backups/db.sql.gz --expires 24h --tier ia --json
+  cubecli s3 presign photos/a.txt --endpoint https://eu.cubestorage.io --region eu
+```
+
 ## `cubecli objectstorage tiers`
 
 List storage tiers with endpoint, prices and free tier
