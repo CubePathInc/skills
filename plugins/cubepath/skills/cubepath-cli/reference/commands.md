@@ -30,7 +30,7 @@ Generated from the cubecli command tree with `cubecli docs markdown`. Do not edi
 - `mcp`: Connect the CubePath MCP server to your AI agents
 - `nat-gateway`: Manage NAT gateways
 - `network`: Manage networks
-- `objectstorage`: Manage Object Storage buckets and access keys (S3 compatible)
+- `objectstorage`: Manage Object Storage buckets, access keys and replication (S3 compatible)
 - `profile`: Manage authentication profiles
 - `project`: Manage projects
 - `skills`: Install the CubePath skills for AI coding agents

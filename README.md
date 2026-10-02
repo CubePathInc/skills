@@ -15,7 +15,7 @@ before anything destructive or billable, and wait for asynchronous operations.
 | [cubepath-networking](plugins/cubepath/skills/cubepath-networking/SKILL.md) | Private networks and routes, NAT gateways, floating IPs, load balancers |
 | [cubepath-dns-cdn](plugins/cubepath/skills/cubepath-dns-cdn/SKILL.md) | DNS zones and records, CDN zones, origins, rules, WAF, metrics |
 | [cubepath-kubernetes](plugins/cubepath/skills/cubepath-kubernetes/SKILL.md) | Managed Kubernetes clusters, node pools, addons, exposing services |
-| [cubepath-object-storage](plugins/cubepath/skills/cubepath-object-storage/SKILL.md) | S3-compatible buckets, access keys for S3 clients, CDN delivery, usage and cost |
+| [cubepath-object-storage](plugins/cubepath/skills/cubepath-object-storage/SKILL.md) | S3-compatible buckets, access keys for S3 clients, replication, CDN delivery, usage and cost |
 
 ## Install
 

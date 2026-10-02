@@ -1,6 +1,6 @@
 # cubecli objectstorage
 
-Manage Object Storage buckets and access keys (S3 compatible)
+Manage Object Storage buckets, access keys and replication (S3 compatible)
 
 ## `cubecli objectstorage bucket create`
 
@@ -298,6 +298,185 @@ Examples:
   AWS_ACCESS_KEY_ID=CP... AWS_SECRET_ACCESS_KEY=... cubecli s3 presign photos/2026/report.pdf --expires 1h
   cubecli s3 presign backups/db.sql.gz --expires 24h --tier ia --json
   cubecli s3 presign photos/a.txt --endpoint https://eu.cubestorage.io --region eu
+```
+
+## `cubecli objectstorage replication create`
+
+Replicate a bucket to a CubePath bucket or to an external S3 bucket
+
+Replicate a bucket (name or uuid) to one destination.
+
+CubePath destination: --dest-bucket takes a bucket of your organization (name or
+uuid) or the uuid of a bucket of another organization together with the
+--grant-token its owner created with "cubecli s3 replication grant create".
+Both buckets must be in the same tier and have versioning enabled. They are
+stored in the same location: this is not a disaster recovery copy.
+
+External destination: --external with --endpoint (public HTTPS host of the
+provider, port 443 only), --region, --bucket and --access-key. The secret access
+key is never taken from the command line: pipe it with --secret-key-stdin, set
+CUBEPATH_REPL_SECRET, or type it when asked. Data sent to an external
+destination is billed as egress of the source bucket. Versioning must be enabled
+on the external bucket too.
+
+By default the objects already in the bucket are copied as well; use
+--no-existing-objects to replicate only new writes. Buckets with Object Lock
+cannot be replication sources.
+
+Usage: `cubecli objectstorage replication create <source-bucket> [flags]`
+
+- `--access-key string`: External access key ID
+- `--bucket string`: External bucket name
+- `--delete-markers`: Replicate delete markers (not with --tag)
+- `--deletes`: Replicate deletes of a specific version
+- `--dest-bucket string`: CubePath destination bucket: name or uuid (uuid for a bucket of another organization)
+- `--endpoint string`: External endpoint: public HTTPS host name, optionally with :443
+- `--external`: Replicate to an external S3 compatible bucket
+- `--grant-token string`: Grant token from the owner of a destination bucket of another organization
+- `--no-existing-objects`: Do not copy the objects already in the bucket, only new writes
+- `--path-style string`: External addressing: auto, on or off (default auto)
+- `--prefix string`: Only replicate objects under this prefix
+- `--provider string`: External provider: aws, wasabi or other (informative) (default other)
+- `--region string`: External bucket region
+- `--secret-key-stdin`: Read the external secret access key from stdin (else CUBEPATH_REPL_SECRET or a prompt)
+- `--tag stringArray`: Only replicate objects carrying this tag, key=value (repeatable, all must match, up to 10; not with --prefix)
+
+Examples:
+
+```
+  cubecli s3 replication create photos --dest-bucket photos-copy
+  cubecli s3 replication create photos --dest-bucket 2b6c0e0a-... --grant-token cprg_...
+  printf '%s' "$AWS_SECRET" | cubecli s3 replication create photos --external --provider aws \
+      --endpoint s3.eu-west-1.amazonaws.com --region eu-west-1 --bucket acme-photos-backup \
+      --access-key AKIA... --secret-key-stdin --prefix img/
+```
+
+## `cubecli objectstorage replication delete`
+
+Stop and remove a replication (the data already copied stays in the destination)
+
+Usage: `cubecli objectstorage replication delete <replication> [flags]`
+
+- `-f, --force`: Skip confirmation prompt
+
+## `cubecli objectstorage replication get`
+
+Show a replication with its health, initial copy and metrics
+
+Usage: `cubecli objectstorage replication get <replication>`
+
+Aliases: show
+
+## `cubecli objectstorage replication grant create`
+
+Create a grant for a bucket; the token is shown only once
+
+Usage: `cubecli objectstorage replication grant create <bucket> [flags]`
+
+- `--expires-in-days int`: Days until the grant expires (1 to 30) (default 7)
+- `--note string`: Note to remember who the grant is for
+
+Examples:
+
+```
+  cubecli s3 replication grant create photos-backup --note "for Acme" --expires-in-days 3
+```
+
+## `cubecli objectstorage replication grant delete`
+
+Revoke a grant that was not used yet
+
+Usage: `cubecli objectstorage replication grant delete <grant-uuid> [flags]`
+
+Aliases: revoke
+
+- `-f, --force`: Skip confirmation prompt
+
+## `cubecli objectstorage replication grant list`
+
+List the grants of a bucket (tokens are never shown again)
+
+Usage: `cubecli objectstorage replication grant list <bucket>`
+
+## `cubecli objectstorage replication list`
+
+List outgoing and incoming replications
+
+Usage: `cubecli objectstorage replication list [flags]`
+
+- `--bucket string`: Only replications from (outgoing) or into (incoming) this bucket, name or uuid
+- `--direction string`: outgoing, incoming or all (default all)
+
+Examples:
+
+```
+  cubecli s3 replication list
+  cubecli s3 replication list --direction incoming --bucket photos-backup
+```
+
+## `cubecli objectstorage replication resync`
+
+Copy the existing objects again
+
+Send the objects already in the source bucket to the destination again, for
+example after the destination was unavailable. --older-than-days limits it to
+objects older than that many days. Data sent to an external destination is
+billed as egress again.
+
+Usage: `cubecli objectstorage replication resync <replication> [flags]`
+
+- `--older-than-days int`: Only objects older than this many days (default: every object)
+
+Examples:
+
+```
+  cubecli s3 replication resync photos
+  cubecli s3 replication resync photos --older-than-days 3
+```
+
+## `cubecli objectstorage replication revoke`
+
+Stop a replication from another organization into one of your buckets
+
+Stop an incoming replication from another organization (see
+"cubecli s3 replication list --direction incoming"). The data already copied
+stays in your bucket. The source owner cannot resume it: it needs a new grant.
+
+Usage: `cubecli objectstorage replication revoke <replication-uuid> [flags]`
+
+- `-f, --force`: Skip confirmation prompt
+
+## `cubecli objectstorage replication update`
+
+Change the rules, pause or resume, or rotate external credentials
+
+Change a replication (uuid or source bucket name).
+
+--enabled=false pauses it and --enabled resumes it. --prefix or --tag replace
+the filter (--clear-filter removes it). --rotate-credentials sets a new access
+key of an external destination with --access-key; the secret is read with
+--secret-key-stdin, from CUBEPATH_REPL_SECRET or from a prompt, never from the
+command line.
+
+Usage: `cubecli objectstorage replication update <replication> [flags]`
+
+- `--access-key string`: New external access key ID (with --rotate-credentials)
+- `--clear-filter`: Remove the prefix or tag filter: replicate every object
+- `--delete-markers`: Replicate delete markers (not with --tag)
+- `--deletes`: Replicate deletes of a specific version
+- `--enabled`: Resume (--enabled) or pause (--enabled=false) the replication (default true)
+- `--existing-objects`: Copy existing objects on resync (--existing-objects=false turns it off) (default true)
+- `--prefix string`: Only replicate objects under this prefix
+- `--rotate-credentials`: Replace the access key of an external destination
+- `--secret-key-stdin`: Read the new secret access key from stdin (else CUBEPATH_REPL_SECRET or a prompt)
+- `--tag stringArray`: Only replicate objects carrying this tag, key=value (repeatable, all must match, up to 10; not with --prefix)
+
+Examples:
+
+```
+  cubecli s3 replication update photos --enabled=false
+  cubecli s3 replication update photos --prefix img/ --delete-markers
+  printf '%s' "$NEW_SECRET" | cubecli s3 replication update photos --rotate-credentials --access-key AKIA... --secret-key-stdin
 ```
 
 ## `cubecli objectstorage tiers`

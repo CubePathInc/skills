@@ -7,9 +7,9 @@ Checks
 - Each SKILL.md has frontmatter with `name` (= directory name, kebab-case, max
   64 chars) and `description` (max 1024 chars), and stays under 500 lines.
 - Relative links resolve.
-- Every `cubecli ...` invocation in a SKILL.md (code blocks and inline code) is
-  a real command in the generated reference, and every `--flag` it uses exists
-  on that command. This is what keeps the skills from inventing flags.
+- Every `cubecli ...` invocation in a SKILL.md or a companion .md next to it
+  (code blocks and inline code) is a real command in the generated reference,
+  and every `--flag` it uses exists on that command. This is what keeps the skills from inventing flags.
 
 Usage: scripts/validate.py
 """
@@ -173,6 +173,16 @@ def main() -> int:
                 err(skill, f"broken link: {target}")
         for line in invocations(text):
             check_invocation(skill, line, commands, global_flags)
+        # Companion files next to SKILL.md (reference/ is generated) follow the same rules.
+        for extra in sorted(skill.parent.glob("*.md")):
+            if extra.name == "SKILL.md":
+                continue
+            extra_text = extra.read_text()
+            for target in re.findall(r"\]\(([^)#\s]+)(?:#[^)]*)?\)", extra_text):
+                if "://" not in target and not (extra.parent / target).exists():
+                    err(extra, f"broken link: {target}")
+            for line in invocations(extra_text):
+                check_invocation(extra, line, commands, global_flags)
 
     if errors:
         print("\n".join(errors))

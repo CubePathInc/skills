@@ -1,6 +1,6 @@
 ---
 name: cubepath-object-storage
-description: Manage CubePath Object Storage (S3 compatible) with cubecli - storage tiers and prices, buckets, versioning and deletion protection, Object Lock (immutable WORM buckets for backups and retention), bucket and object tags, access keys for AWS CLI, rclone, boto3 and other S3 clients, temporary share links (presigned URLs), serving a bucket publicly through the CubePath CDN, lifecycle rules that delete old objects or versions, bucket charts, monthly usage and cost, and usage or budget alerts. Use when the user wants S3 storage, a bucket, S3 credentials, to store backups or static files on CubePath, immutable or ransomware proof backups (Veeam, Kopia, restic), to share a file with a temporary link, to expire old files automatically, or to serve files from a bucket through a CDN.
+description: Manage CubePath Object Storage (S3 compatible) with cubecli - storage tiers and prices, buckets, versioning and deletion protection, Object Lock (immutable WORM buckets for backups and retention), bucket and object tags, access keys for AWS CLI, rclone, boto3 and other S3 clients, temporary share links (presigned URLs), serving a bucket publicly through the CubePath CDN, lifecycle rules that delete old objects or versions, replication of a bucket to another CubePath bucket or to an external S3 provider, bucket charts, monthly usage and cost, and usage or budget alerts. Use when the user wants S3 storage, a bucket, S3 credentials, to store backups or static files on CubePath, immutable or ransomware proof backups (Veeam, Kopia, restic), to share a file with a temporary link, to expire old files automatically, to copy a bucket continuously to another bucket or provider (off site backup), or to serve files from a bucket through a CDN.
 ---
 
 # CubePath Object Storage
@@ -349,6 +349,35 @@ Other expirations: `{"date": "2027-01-01"}` (after today, UTC). Filters can
 also take `tags` (`[{"key": "class", "value": "temp"}]`, up to 10),
 `object_size_greater_than` and `object_size_less_than` (bytes).
 
+## Replication
+
+Replication copies every new object version of a bucket to one destination,
+asynchronously. Details, filters, health and grants:
+[replication.md](replication.md).
+
+- **CubePath destination** (a bucket of the same tier): no egress, the copy is
+  billed as storage of the destination bucket. It is in the same location as
+  the source: **not disaster recovery**.
+- **External destination** (AWS S3, Wasabi, any S3 compatible provider): the
+  off site option. Everything sent is **egress of the source bucket** at the
+  tier price, initial copy and resyncs included. Public **HTTPS on port 443
+  only** (a host name, no IP, no other port).
+- **Versioning must be `enabled`** on the source and the destination. **Buckets
+  with Object Lock cannot be sources** (a locked destination is fine).
+- Another organization's bucket needs a one use **grant** from its owner
+  (`replication grant create`); the token is shown once.
+
+Confirm destination and cost with the user first. The external secret never
+goes on the command line (`--secret-key-stdin` or `CUBEPATH_REPL_SECRET`):
+
+```bash
+cubecli objectstorage replication create photos --dest-bucket photos-copy --json
+printf '%s' "$AWS_SECRET" | cubecli objectstorage replication create photos --external --provider aws \
+  --endpoint s3.eu-west-1.amazonaws.com --region eu-west-1 --bucket acme-photos-backup \
+  --access-key AKIA... --secret-key-stdin
+cubecli objectstorage replication get photos --json   # .status pending -> active; .health; .backfill
+```
+
 ## Usage and cost
 
 ```bash
@@ -459,5 +488,10 @@ A project with buckets or access keys cannot be deleted until they are.
 | `A compliance default retention cannot be removed or shortened.` | Expected: compliance can only be kept or lengthened. |
 | `Some objects are still protected by Object Lock ...` | The delete kept locked versions; delete again when their retention ends. |
 | S3 403 on an upload with object lock headers, or `AccessDenied` deleting a version | Compliance not enabled (per object retention), or the version is under retention: see "Object Lock". |
+| `Enable versioning on bucket '...' before replicating it.` | Turn versioning on (`bucket update --versioning enabled`) on the source, and on the destination for the destination message. |
+| `Buckets with Object Lock cannot be replication sources.` | Expected: replicate from a bucket without Object Lock. |
+| `The destination endpoint is not allowed. ...` | Use the provider's public HTTPS host name on port 443, not an IP, a private name or another port. |
+| `The replication grant is invalid or has expired. ...` | Ask the destination owner for a new grant. |
+| `Bucket '...' already replicates to another destination. ...` | One destination per bucket: delete the current replication first. |
 | 403 on a write | The session lacks `object_storage:write` (or `cdn:write` for the CDN commands; adding a bucket as a CDN origin needs both): log in again granting write access. |
 | S3 `InvalidRequest` on upload | Bucket quota (1 TiB) reached or the key expired. |
