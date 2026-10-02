@@ -16,6 +16,10 @@ Tags are labels to organize and filter buckets (at most 50; key up to 128 and
 value up to 256 characters). They are managed with cubecli, the API and the
 dashboard only: S3 bucket tagging calls are not supported.
 
+Encryption at rest (AES-256) is on by default: --no-encryption creates the
+bucket without it. It can be enabled later (bucket encryption enable), never
+turned off.
+
 --object-lock creates the bucket with Object Lock (WORM): object versions cannot
 be deleted or overwritten until their retention date. It can only be turned on
 now, never later, and implies versioning and deletion protection. It needs
@@ -32,6 +36,7 @@ Usage: `cubecli objectstorage bucket create <name> [flags]`
 - `--lock-days int`: Default retention in days
 - `--lock-mode string`: Default retention mode: governance or compliance
 - `--lock-years int`: Default retention in years
+- `--no-encryption`: Create the bucket without encryption at rest (it can be enabled later, never turned off)
 - `--object-lock`: Create the bucket with Object Lock (only possible now, never later)
 - `--tag stringArray`: Tag as key=value (repeatable)
 - `--tier string`: Storage tier: slug, uuid or ia (see 'objectstorage tiers') (required)
@@ -45,6 +50,7 @@ Examples:
   cubecli objectstorage bucket create photos --tier ia
   cubecli s3 bucket create backups --tier infrequent_access --project 12 --versioning
   cubecli s3 bucket create logs --tier ia --tag env=prod --tag team=data
+  cubecli s3 bucket create scratch --tier ia --no-encryption
   cubecli s3 bucket create veeam --tier ia --object-lock --accept-object-lock-terms
   cubecli s3 bucket create archive --tier ia --object-lock --lock-mode governance --lock-days 30 --accept-object-lock-terms
 ```
@@ -70,6 +76,27 @@ Usage: `cubecli objectstorage bucket delete <bucket> [flags]`
 - `--bypass-governance`: With --purge on a bucket with Object Lock: also delete versions under governance retention
 - `--purge`: Also delete every object and version in the bucket (the API's force delete)
 - `-f, --force`: Skip confirmation prompt
+
+## `cubecli objectstorage bucket encryption enable`
+
+Enable encryption at rest on a bucket (cannot be undone)
+
+Enable encryption at rest (AES-256) on a bucket. New objects are encrypted at
+once and the objects already stored are encrypted in the background; their
+content, metadata, tags and ETag stay the same, their last modified date changes.
+In a versioned bucket only the current versions are encrypted: older versions
+stay as they are. Encryption cannot be turned off afterwards.
+
+Usage: `cubecli objectstorage bucket encryption enable <bucket> [flags]`
+
+- `-f, --force`: Skip confirmation prompt
+
+Examples:
+
+```
+  cubecli s3 bucket encryption enable photos
+  cubecli s3 bucket encryption enable photos --force
+```
 
 ## `cubecli objectstorage bucket get`
 
