@@ -1,6 +1,6 @@
 ---
 name: cubepath-object-storage
-description: Manage CubePath Object Storage (S3 compatible) with cubecli - storage tiers and prices, buckets, versioning and deletion protection, bucket and object tags, access keys for AWS CLI, rclone, boto3 and other S3 clients, temporary share links (presigned URLs), serving a bucket publicly through the CubePath CDN, and monthly usage and cost. Use when the user wants S3 storage, a bucket, S3 credentials, to store backups or static files on CubePath, to share a file with a temporary link, or to serve files from a bucket through a CDN.
+description: Manage CubePath Object Storage (S3 compatible) with cubecli - storage tiers and prices, buckets, versioning and deletion protection, bucket and object tags, access keys for AWS CLI, rclone, boto3 and other S3 clients, temporary share links (presigned URLs), serving a bucket publicly through the CubePath CDN, bucket charts, monthly usage and cost, and usage or budget alerts. Use when the user wants S3 storage, a bucket, S3 credentials, to store backups or static files on CubePath, to share a file with a temporary link, or to serve files from a bucket through a CDN.
 ---
 
 # CubePath Object Storage
@@ -262,6 +262,28 @@ Example, "how much egress did my bucket do yesterday?": run
 `cubecli objectstorage bucket metrics photos --range 3d --part traffic --json`
 and sum the `egress_bytes` points whose `ts` falls inside yesterday (UTC);
 `cdn_bytes` is traffic to the CDN, not billed as egress.
+
+## Alerts
+
+Usage alerts notify an email, Slack or Discord channel when a bucket or the
+organization's Object Storage crosses a threshold. cubecli has no alert
+commands: they are managed from the dashboard, Terraform
+(`cubepath_alert_rule`), Ansible (`cubepathinc.cloud.cloud_alert`) or the
+CubePath MCP server (`cubepath_alert_list`, `cubepath_alert_set`).
+
+- Bucket (`target_type` `object_storage_bucket`, target the bucket uuid, created
+  in the bucket's project): `storage_size_gb`, `storage_egress_gb_month`,
+  `storage_error_rate_5xx` and `storage_error_rate_403` (percent of requests
+  over the last 5 minutes, needs at least 20 requests).
+- Organization (`target_type` `organization`, target the organization ID, still
+  attached to a project): `storage_cost_month` (USD billed so far this month,
+  about an hour behind billing) and `storage_egress_gb_month` (GiB this month,
+  before the free tier).
+- Monthly metrics only take `gt`/`gte`, notify once per month and reset on the
+  1st (UTC). Up to 50 alerts per organization. Alerts are free.
+
+A monthly budget (for example `storage_cost_month` `gte` 50) is the usual
+answer to "warn me before Object Storage costs too much".
 
 ## Delete a bucket
 
