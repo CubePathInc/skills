@@ -210,6 +210,171 @@ Examples:
   cubecli s3 bucket update photos --clear-tags
 ```
 
+## `cubecli objectstorage events destination create`
+
+Create a webhook or channel destination; the signing secret is shown only once
+
+Create an event destination.
+
+--webhook takes an https URL on port 443 or 8443 that resolves to a public
+address. The answer carries the signing secret (whsec_...): it is shown only
+now, store it where your receiver can read it.
+
+--channel takes the id of a Slack or Discord channel of Cloud Alerts
+('cubecli alert notificator list'). Channel deliveries are not signed.
+
+--format picks the payload: cubepath (default) or s3 ({"Records":[...]} in the
+AWS shape, to reuse existing handlers).
+
+Usage: `cubecli objectstorage events destination create [flags]`
+
+- `--channel string`: Cloud Alerts notificator id (Slack or Discord)
+- `--format string`: Payload format: cubepath (default) or s3
+- `--webhook string`: Webhook URL (https)
+- `-n, --name string`: Destination name (required)
+
+Examples:
+
+```
+  cubecli s3 events destination create --name uploads-hook --webhook https://example.com/hooks/storage
+  cubecli s3 events destination create --name ops --channel 7c1e0d2a --format cubepath
+```
+
+## `cubecli objectstorage events destination delete`
+
+Delete an event destination (it must have no rules)
+
+Usage: `cubecli objectstorage events destination delete <destination> [flags]`
+
+- `-f, --force`: Skip confirmation prompt
+
+## `cubecli objectstorage events destination deliveries`
+
+Show the latest deliveries of a destination (last 30 days)
+
+Usage: `cubecli objectstorage events destination deliveries <destination> [flags]`
+
+- `--before string`: Only deliveries before this time, to page back
+- `--limit int`: Number of deliveries (default 50)
+- `--status string`: Only success, failed or dead deliveries
+
+Examples:
+
+```
+  cubecli s3 events destination deliveries uploads-hook --status failed
+  cubecli s3 events destination deliveries uploads-hook --limit 100 --before 2026-10-01T00:00:00
+```
+
+## `cubecli objectstorage events destination get`
+
+Show an event destination (uuid or name)
+
+Usage: `cubecli objectstorage events destination get <destination>`
+
+## `cubecli objectstorage events destination list`
+
+List event destinations
+
+Usage: `cubecli objectstorage events destination list`
+
+## `cubecli objectstorage events destination rotate-secret`
+
+Issue a new signing secret; the previous one keeps signing for 24 hours
+
+Usage: `cubecli objectstorage events destination rotate-secret <destination> [flags]`
+
+- `-f, --force`: Skip confirmation prompt
+
+## `cubecli objectstorage events destination test`
+
+Send a cubepath.ping test event to a destination
+
+Usage: `cubecli objectstorage events destination test <destination>`
+
+## `cubecli objectstorage events destination update`
+
+Rename, change the URL or format, enable or disable a destination
+
+Usage: `cubecli objectstorage events destination update <destination> [flags]`
+
+- `--disable`: Disable the destination: events for it are dropped
+- `--enable`: Enable the destination (also after it was disabled for failing)
+- `--format string`: Payload format: cubepath or s3
+- `--webhook string`: New webhook URL (webhook destinations only)
+- `-n, --name string`: New name
+
+Examples:
+
+```
+  cubecli s3 events destination update uploads-hook --webhook https://example.com/v2/hooks
+  cubecli s3 events destination update uploads-hook --enable
+```
+
+## `cubecli objectstorage events rule create`
+
+Send a bucket's events to a destination
+
+Create an event rule on a bucket. --events takes created, removed and/or
+tagging. --prefix and --suffix limit the rule to matching object keys.
+
+The rule is applied in the background: its status is pending for a few seconds,
+then active ('cubecli s3 events rule list --bucket <bucket>').
+
+Usage: `cubecli objectstorage events rule create [flags]`
+
+- `--disabled`: Create the rule disabled
+- `--events stringSlice`: Events: created, removed, tagging (comma separated) (required)
+- `--prefix string`: Only keys starting with this prefix
+- `--suffix string`: Only keys ending with this suffix
+- `-b, --bucket string`: Bucket name or uuid (required)
+- `-d, --destination string`: Destination name or uuid (required)
+- `-n, --name string`: Rule name (default: on-<events>)
+
+Examples:
+
+```
+  cubecli s3 events rule create --bucket photos --destination uploads-hook --events created --prefix incoming/ --suffix .jpg
+  cubecli s3 events rule create --bucket photos --destination ops --events created,removed,tagging --name everything
+```
+
+## `cubecli objectstorage events rule delete`
+
+Delete an event rule (uuid or name)
+
+Usage: `cubecli objectstorage events rule delete <rule> [flags]`
+
+- `-b, --bucket string`: Bucket name or uuid (required)
+- `-f, --force`: Skip confirmation prompt
+
+## `cubecli objectstorage events rule list`
+
+List the event rules of a bucket
+
+Usage: `cubecli objectstorage events rule list [flags]`
+
+- `-b, --bucket string`: Bucket name or uuid (required)
+
+## `cubecli objectstorage events rule update`
+
+Change an event rule (uuid or name)
+
+Usage: `cubecli objectstorage events rule update <rule> [flags]`
+
+- `--disable`: Disable the rule
+- `--enable`: Enable the rule
+- `--events stringSlice`: Events: created, removed, tagging (comma separated)
+- `--prefix string`: Key prefix ("" for none)
+- `--suffix string`: Key suffix ("" for none)
+- `-b, --bucket string`: Bucket name or uuid (required)
+- `-d, --destination string`: New destination (name or uuid)
+- `-n, --name string`: New name
+
+Examples:
+
+```
+  cubecli s3 events rule update on-created --bucket photos --events created,removed --suffix ""
+```
+
 ## `cubecli objectstorage key create`
 
 Create an access key; the secret is shown only once
