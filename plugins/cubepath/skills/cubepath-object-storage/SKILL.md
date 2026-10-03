@@ -1,6 +1,6 @@
 ---
 name: cubepath-object-storage
-description: Manage CubePath Object Storage (S3 compatible) with cubecli - storage tiers and prices, buckets, versioning and deletion protection, Object Lock (immutable WORM buckets for backups and retention), bucket and object tags, access keys for AWS CLI, rclone, boto3 and other S3 clients, temporary share links (presigned URLs), serving a bucket publicly through the CubePath CDN, lifecycle rules that delete old objects or versions, replication of a bucket to another CubePath bucket or to an external S3 provider, bucket charts, monthly usage and cost, and usage or budget alerts. Use when the user wants S3 storage, a bucket, S3 credentials, to store backups or static files on CubePath, immutable or ransomware proof backups (Veeam, Kopia, restic), to share a file with a temporary link, to expire old files automatically, to copy a bucket continuously to another bucket or provider (off site backup), or to serve files from a bucket through a CDN.
+description: Manage CubePath Object Storage (S3 compatible) with cubecli - tiers and prices, buckets, versioning and deletion protection, Object Lock (immutable WORM buckets), bucket and object tags, access keys for S3 clients, temporary share links (presigned URLs), serving a bucket through the CubePath CDN, lifecycle rules, replication to another CubePath bucket or an external S3 provider, event notifications to webhooks or Slack/Discord, bucket charts, monthly usage and cost, and usage or budget alerts. Use when the user wants S3 storage, a bucket, S3 credentials, backups or static files on CubePath, immutable or ransomware proof backups (Veeam, Kopia, restic), a temporary download link, automatic expiry of old files, an off site copy of a bucket, to react to uploads or deletions, or to serve files from a bucket through a CDN.
 ---
 
 # CubePath Object Storage
@@ -369,14 +369,15 @@ asynchronously. Details, filters, health and grants:
 
 Confirm destination and cost with the user first. The external secret never
 goes on the command line (`--secret-key-stdin` or `CUBEPATH_REPL_SECRET`):
+commands in [replication.md](replication.md).
 
-```bash
-cubecli objectstorage replication create photos --dest-bucket photos-copy --json
-printf '%s' "$AWS_SECRET" | cubecli objectstorage replication create photos --external --provider aws \
-  --endpoint s3.eu-west-1.amazonaws.com --region eu-west-1 --bucket acme-photos-backup \
-  --access-key AKIA... --secret-key-stdin
-cubecli objectstorage replication get photos --json   # .status pending -> active; .health; .backfill
-```
+## Events
+
+Event notifications send `object.created`, `object.removed` and `object.tagging`
+of a bucket to a signed webhook or a Slack/Discord channel: a **destination**
+(organization wide) and a **rule** on the bucket (events, prefix, suffix). The
+signing secret is printed only once. Commands, signature checks and delivery
+history: [events.md](events.md).
 
 ## Usage and cost
 
