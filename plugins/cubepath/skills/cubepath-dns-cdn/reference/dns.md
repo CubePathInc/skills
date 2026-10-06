@@ -2,25 +2,60 @@
 
 Manage DNS zones and records
 
-## `cubecli dns health-check delete`
+## `cubecli dns healthcheck delete`
 
 Delete the health check of a record
 
-Usage: `cubecli dns health-check delete <zone_uuid> <record_uuid> [flags]`
+Usage: `cubecli dns healthcheck delete <zone_uuid> <record_uuid> [flags]`
 
 - `-f, --force`: Skip confirmation prompt
 
-## `cubecli dns health-check list`
+## `cubecli dns healthcheck get`
+
+Show the health check of a record
+
+Usage: `cubecli dns healthcheck get <zone_uuid> <record_uuid>`
+
+Aliases: show
+
+## `cubecli dns healthcheck history`
+
+Show uptime per location and recent incidents of a health check
+
+Show the uptime of a health check over a window: the overall status, one row
+per CDN location (PoP) and the most recent incidents.
+
+History is kept 30 days on Pro zones and 90 days on Business zones (at least
+7 days while the zone has a health check); a longer --range is shortened to
+the retention.
+
+Usage: `cubecli dns healthcheck history <zone_uuid> <record_uuid> [flags]`
+
+- `--incidents int`: Maximum incidents to list (0 for all returned) (default 10)
+- `-r, --range string`: Window: 24h, 7d, 30d or 90d (default 24h)
+
+Examples:
+
+```
+  cubecli dns healthcheck history <zone_uuid> <record_uuid>
+  cubecli dns hc history <zone_uuid> <record_uuid> --range 30d --incidents 50
+  cubecli dns hc history <zone_uuid> <record_uuid> --range 7d --json
+```
+
+## `cubecli dns healthcheck list`
 
 List the health checks of a zone
 
-Usage: `cubecli dns health-check list <zone_uuid>`
+Usage: `cubecli dns healthcheck list <zone_uuid>`
 
-## `cubecli dns health-check set`
+## `cubecli dns healthcheck set`
 
 Create or replace the health check of an A/AAAA record
 
-Usage: `cubecli dns health-check set <zone_uuid> <record_uuid> [flags]`
+Create or replace the health check of an A or AAAA record.
+Every field is replaced: flags you leave out go back to their defaults.
+
+Usage: `cubecli dns healthcheck set <zone_uuid> <record_uuid> [flags]`
 
 - `--disabled`: Save the check disabled (not billed, no failover)
 - `--expected-status int`: Expected HTTP status (http/https) (default 200)
@@ -37,15 +72,10 @@ Usage: `cubecli dns health-check set <zone_uuid> <record_uuid> [flags]`
 Examples:
 
 ```
-  cubecli dns health-check set <zone_uuid> <record_uuid> --name web --type https --path /health
-  cubecli dns health-check set <zone_uuid> <record_uuid> --name db --type tcp --port 5432 --interval 30
+  cubecli dns healthcheck set <zone_uuid> <record_uuid> --name web --type https --path /health
+  cubecli dns hc set <zone_uuid> <record_uuid> --name db --type tcp --port 5432 --interval 30
+  cubecli dns hc set <zone_uuid> <record_uuid> --name web --type http --expected-status 204 --disabled
 ```
-
-## `cubecli dns health-check show`
-
-Show the health check of a record
-
-Usage: `cubecli dns health-check show <zone_uuid> <record_uuid>`
 
 ## `cubecli dns record create`
 
