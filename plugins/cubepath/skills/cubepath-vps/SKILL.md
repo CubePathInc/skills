@@ -1,6 +1,6 @@
 ---
 name: cubepath-vps
-description: Create, inspect, resize, reinstall, back up, power-manage and destroy CubePath VPS and baremetal servers with cubecli, including choosing location, plan and OS template, SSH keys, cloud-init, availability groups and VPS snapshots (convert a backup and deploy copies in any location). Use when the user wants a server, VM, VPS or dedicated/baremetal machine on CubePath, or asks about one they already have.
+description: Create, inspect, resize, reinstall, back up, power-manage and destroy CubePath VPS and baremetal servers with cubecli, including choosing location, plan and OS template, SSH keys, cloud-init, availability groups and VPS snapshots (take one from a VPS or convert a backup, and deploy copies in any location). Use when the user wants a server, VM, VPS or dedicated/baremetal machine on CubePath, or asks about one they already have.
 ---
 
 # CubePath VPS and baremetal
@@ -105,7 +105,8 @@ Suggest a manual backup before a reinstall, resize or risky change.
 
 ## Snapshots
 
-A snapshot is a permanent copy of a VPS disk, made from one of its completed
+A snapshot is a permanent copy of a VPS disk, taken directly from the VPS
+(backups do not need to be enabled) or converted from one of its completed
 backups. Unlike a backup it does not expire and is not deleted when the source
 VPS is destroyed. It can be deployed as new VPS in **any location**, not only
 where the source lives.
@@ -114,28 +115,39 @@ where the source lives.
 until it is deleted (read the live price from `cubecli snapshot quota --json`,
 `price_gb_month`). Each organization has a limit on the number of snapshots and
 on their total GB; `cubecli snapshot quota --json` returns `count`,
-`count_max`, `gb` and `gb_max`; a new conversion needs room left in both.
-Snapshots being converted or deleted count towards the quota.
+`count_max`, `gb` and `gb_max`; a new snapshot needs room left in both.
+Snapshots being created or deleted count towards the quota.
 
-### Convert a backup
+### Create a snapshot
 
-1. Pick a backup with `status` completed:
-   `cubecli vps backup list <vps_id> --json` (a backup already converted shows
-   its `snapshot_uuid`).
-2. Check the quota and tell the user the monthly cost (disk GB x price).
+Two ways, same result and price:
+
+- **Now, from the VPS** (default): omit `--backup`. It copies the current disk
+  of the VPS and works even if backups are not enabled. Use it when the user
+  asks for "a snapshot of my server" without naming a backup.
+- **From a completed backup**: pass `--backup <backup_id>` to keep the state
+  of an earlier point in time. Pick one with `status` completed from
+  `cubecli vps backup list <vps_id> --json` (a backup already converted shows
+  its `snapshot_uuid`).
+
+1. Check the quota and tell the user the monthly cost (disk GB x price).
    Confirm before creating: it is billable.
-3. Create it and follow the conversion (a few minutes):
+2. Create it and follow it until it is ready (a few minutes):
 
 ```bash
-cubecli snapshot create --vps <vps_id> --backup <backup_id> --name web-01-base \
-  --description "nginx + app, before go-live"
+cubecli snapshot create --vps <vps_id> --name web-01-base \
+  --description "nginx + app, before go-live"                 # now, from the VPS
+cubecli snapshot create --vps <vps_id> --backup <backup_id> --name web-01-old  # from a backup
 cubecli snapshot get <snapshot_uuid> --json   # wait for status available
 ```
 
+For a consistent copy of a busy database, suggest stopping writes (or the
+service) while the snapshot is taken.
+
 Statuses: `pending`, `converting`, `available`, `failed`, `deleting`. Only
-`available` snapshots can be deployed. A backup that is being restored or
-deleted, or whose VPS is being reinstalled, migrated or destroyed, can not be
-converted at that moment (409); retry once that task finishes.
+`available` snapshots can be deployed. A VPS that is being restored,
+reinstalled, migrated or destroyed (or a backup being restored or deleted) can
+not be snapshotted at that moment (409); retry once that task finishes.
 
 ### Deploy from a snapshot
 
@@ -181,7 +193,7 @@ cubecli snapshot delete <snapshot_uuid> --force   # permanent, confirm first
 ```
 
 Deleting stops the billing and does not affect servers already deployed from
-it. It is refused while the snapshot is converting or while a deploy uses it.
+it. It is refused while the snapshot is being created or while a deploy uses it.
 
 ## Destroy
 
