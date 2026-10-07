@@ -8,9 +8,12 @@ Take a snapshot of a VPS now, or convert one of its backups
 
 Take a snapshot of a VPS now, or convert one of its completed backups.
 
-Without --backup the snapshot copies the current disk of the VPS: backups do
-not need to be enabled. With --backup it converts that completed backup
-instead (find the ID with "cubecli vps backup list <vps_id>").
+Without --backup the snapshot is taken now, with the server running: it copies
+the current disk of the VPS and backups do not need to be enabled. Pause the
+writes of a database first if you need it consistent.
+
+With --backup it converts that completed backup instead (find the ID with
+"cubecli vps backup list <vps_id>").
 
 The snapshot is billed per GB of the VPS disk per month until you delete it.
 It is queued and takes a few minutes: follow it with
@@ -37,7 +40,7 @@ Delete a snapshot permanently and stop its billing
 Delete a snapshot permanently and stop its billing.
 
 Servers already deployed from the snapshot are not affected. A snapshot can not
-be deleted while it is being converted or while a deployment is using it.
+be deleted while it is being created or while a deployment is using it.
 
 Usage: `cubecli snapshot delete <snapshot_uuid> [flags]`
 

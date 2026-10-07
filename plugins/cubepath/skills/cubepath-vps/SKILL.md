@@ -123,7 +123,8 @@ Snapshots being created or deleted count towards the quota.
 Two ways, same result and price:
 
 - **Now, from the VPS** (default): omit `--backup`. It copies the current disk
-  of the VPS and works even if backups are not enabled. Use it when the user
+  of the VPS, is taken with the server running and works even if backups are
+  not enabled. Use it when the user
   asks for "a snapshot of my server" without naming a backup.
 - **From a completed backup**: pass `--backup <backup_id>` to keep the state
   of an earlier point in time. Pick one with `status` completed from
@@ -141,13 +142,26 @@ cubecli snapshot create --vps <vps_id> --backup <backup_id> --name web-01-old  #
 cubecli snapshot get <snapshot_uuid> --json   # wait for status available
 ```
 
-For a consistent copy of a busy database, suggest stopping writes (or the
-service) while the snapshot is taken.
+A copy taken now is taken with the server running, like pulling the plug at
+that instant. For a consistent copy of a busy database, suggest stopping writes
+(or the service) while the snapshot is taken.
 
 Statuses: `pending`, `converting`, `available`, `failed`, `deleting`. Only
 `available` snapshots can be deployed. A VPS that is being restored,
 reinstalled, migrated or destroyed (or a backup being restored or deleted) can
 not be snapshotted at that moment (409); retry once that task finishes.
+
+A snapshot taken now also gets 409 when:
+
+- the VPS has an ISO mounted: unmount it first (`cubecli vps iso unmount <vps_id>`);
+- a backup of the VPS, or another snapshot taken from it, is still running:
+  wait until it finishes;
+- the VPS is not active or stopped (for example still being created, or in
+  rescue mode);
+- the region of the VPS can not store snapshots right now: retry later.
+
+While a snapshot is being taken from a VPS, its power actions, manual backups,
+restores and floating IP changes return 409 until the copy finishes.
 
 ### Deploy from a snapshot
 
