@@ -113,10 +113,9 @@ where the source lives.
 **Cost and quota.** Billed at 0.03 USD per GB of the source VPS disk per month,
 until it is deleted (read the live price from `cubecli snapshot quota --json`,
 `price_gb_month`). Each organization has a limit on the number of snapshots and
-on their total GB; `cubecli snapshot quota --json` returns `enabled`, `count`,
-`count_max`, `gb` and `gb_max`. If `enabled` is false, snapshots are not
-available for the organization yet. Snapshots being converted or deleted count
-towards the quota.
+on their total GB; `cubecli snapshot quota --json` returns `count`,
+`count_max`, `gb` and `gb_max`; a new conversion needs room left in both.
+Snapshots being converted or deleted count towards the quota.
 
 ### Convert a backup
 
