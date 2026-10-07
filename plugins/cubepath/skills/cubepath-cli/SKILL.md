@@ -1,6 +1,6 @@
 ---
 name: cubepath-cli
-description: Use cubecli, the CubePath Cloud command-line tool, to inspect and manage CubePath infrastructure. Covers installation, login and profiles (one per organization), JSON output, finding project/location/plan/SSH key IDs, confirmations for destructive actions and common API errors. Load it whenever the user mentions CubePath, cubecli or api.cubepath.com, before using any other cubepath-* skill.
+description: Use cubecli, the CubePath Cloud command-line tool, to inspect and manage CubePath infrastructure. Covers installation, login and profiles (one per organization), JSON output, finding project/location/plan/SSH key IDs, confirmations for destructive actions, common API errors and reading the organization's commercial plan (Free, Pro, Business, Enterprise) with cubecli org plan. Load it whenever the user mentions CubePath, cubecli or api.cubepath.com, before using any other cubepath-* skill.
 ---
 
 # cubecli basics
@@ -28,6 +28,12 @@ cubecli auth status --json
   https://my.cubepath.com/organization/tokens) or opens a browser, so it cannot
   be completed by you.
 - **`env_token: true`**: `CUBE_API_TOKEN` is set and overrides every profile.
+
+`auth status` also shows the commercial plan of the active profile's
+organization (Free, Pro, Business or Enterprise, with its renewal or end date).
+In `--json` the active profile has `"plan": null` on Free, the plan block of the
+API otherwise, and no `plan` key when the API could not be reached. Details in
+section 8.
 
 Never ask for, print, copy or store API tokens or OAuth tokens. Never read or edit
 `~/.cubecli/config.json`. If credentials are missing, the user logs in.
@@ -124,6 +130,41 @@ cubecli prints the API's `detail` message. Common ones:
 | `session ... expired or was revoked` | The user runs `cubecli login <profile>`. |
 | 403 on a write | Read-only session or the member lacks the permission in that organization. |
 | 429 | Rate limited. Wait before retrying and do not retry in a tight loop. |
+
+## 8. Organization plan
+
+Each organization has a commercial plan: Free, Pro, Business or Enterprise.
+Read it with:
+
+```bash
+cubecli org plan          # alias: cubecli organization plan
+cubecli org plan --json
+```
+
+It shows the plan, its status (`pending_payment`, `active`, `past_due`,
+`lapsed`), the billing interval (`monthly`, `quarterly`, `semiannually`,
+`yearly`), the price in USD for that interval, the current period, the renewal
+or end date, any plan or interval change or cancellation scheduled for the end
+of the period, the monthly plan credit and the plan invoices. Plans are always
+priced and billed in USD.
+
+`--json` returns the API response unchanged:
+
+| Field | Meaning |
+|---|---|
+| `.subscription` | `null` on Free; else `status`, `plan.code`/`plan.name`, `billing_interval`, `amount_usd` (one full interval), `current_period_start`/`current_period_end` (UTC, end exclusive = renewal date), `cancel_at_period_end`, `next_plan`, `next_billing_interval` |
+| `.scheduled_change` | The next change of terms (`plan`, `billing_interval`, `effective_at`, `amount_usd`), or `null` |
+| `.next_renewal` | `date`, `amount_usd`, `billing_interval` of the next unpaid period, or `null` when the plan ends |
+| `.invoices[]` | Plan invoices: `invoice_number`, `status`, `amount`, `currency` (`USD`), `due_date`, `kind`, `period_start`, `period_end` |
+| `.credit` | `monthly_credit_usd`, `this_month_granted_usd`, `active_grants[]` |
+
+The command only reads. Buying, upgrading, downgrading, changing the interval,
+cancelling or resuming a plan is done by the user on the Plan page of the
+dashboard (https://my.cubepath.com/organization/plan); there is no cubecli
+command for it. A 403 means the member or token cannot see billing.
+
+`cubecli org plan` ships in the cubecli release after 1.12.0; with an older
+cubecli the command does not exist and `auth status` shows no plan.
 
 ## Other tools
 

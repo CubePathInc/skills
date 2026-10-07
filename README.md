@@ -10,7 +10,7 @@ before anything destructive or billable, and wait for asynchronous operations.
 
 | Skill | Covers |
 |---|---|
-| [cubepath-cli](plugins/cubepath/skills/cubepath-cli/SKILL.md) | Install, login and profiles, JSON output, IDs, confirmations, errors. Base for the others. |
+| [cubepath-cli](plugins/cubepath/skills/cubepath-cli/SKILL.md) | Install, login and profiles, JSON output, IDs, confirmations, errors, organization plan. Base for the others. |
 | [cubepath-vps](plugins/cubepath/skills/cubepath-vps/SKILL.md) | VPS lifecycle, cloud-init, backups, availability groups, baremetal |
 | [cubepath-networking](plugins/cubepath/skills/cubepath-networking/SKILL.md) | Private networks and routes, NAT gateways, floating IPs, load balancers |
 | [cubepath-dns-cdn](plugins/cubepath/skills/cubepath-dns-cdn/SKILL.md) | DNS zones and records, CDN zones, origins, rules, WAF, metrics |
