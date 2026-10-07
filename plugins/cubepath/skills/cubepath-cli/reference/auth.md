@@ -55,4 +55,12 @@ Usage: `cubecli auth logout [profile] [flags]`
 
 Show how each profile is authenticated
 
+Show how each profile is authenticated.
+
+For the active profile it also asks the API for the organization's plan (Free,
+Pro, Business or Enterprise, with its renewal or end date). In --json the
+active profile has "plan": null on Free, the plan block of /account/me
+otherwise, and no "plan" key when the API could not be reached. See
+'cubecli org plan' for the details.
+
 Usage: `cubecli auth status`

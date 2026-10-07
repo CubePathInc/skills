@@ -1,12 +1,13 @@
 ---
 name: cubepath-vps
-description: Create, inspect, resize, reinstall, back up, power-manage and destroy CubePath VPS and baremetal servers with cubecli, including choosing location, plan and OS template, SSH keys, cloud-init and availability groups. Use when the user wants a server, VM, VPS or dedicated/baremetal machine on CubePath, or asks about one they already have.
+description: Create, inspect, resize, reinstall, back up, power-manage and destroy CubePath VPS and baremetal servers with cubecli, including choosing location, plan and OS template, SSH keys, cloud-init, availability groups and VPS snapshots (convert a backup and deploy copies in any location). Use when the user wants a server, VM, VPS or dedicated/baremetal machine on CubePath, or asks about one they already have.
 ---
 
 # CubePath VPS and baremetal
 
 Follow the `cubepath-cli` skill first (session, profile, `--json`, confirmations).
 Exact flags: [reference/vps.md](reference/vps.md),
+[reference/snapshot.md](reference/snapshot.md),
 [reference/availability-group.md](reference/availability-group.md),
 [reference/baremetal.md](reference/baremetal.md).
 
@@ -101,6 +102,87 @@ cubecli vps backup restore <id> <backup_id> --force   # overwrites the disk, con
 ```
 
 Suggest a manual backup before a reinstall, resize or risky change.
+
+## Snapshots
+
+A snapshot is a permanent copy of a VPS disk, made from one of its completed
+backups. Unlike a backup it does not expire and is not deleted when the source
+VPS is destroyed. It can be deployed as new VPS in **any location**, not only
+where the source lives.
+
+**Cost and quota.** Billed at 0.03 USD per GB of the source VPS disk per month,
+until it is deleted (read the live price from `cubecli snapshot quota --json`,
+`price_gb_month`). Each organization has a limit on the number of snapshots and
+on their total GB; `cubecli snapshot quota --json` returns `enabled`, `count`,
+`count_max`, `gb` and `gb_max`. If `enabled` is false, snapshots are not
+available for the organization yet. Snapshots being converted or deleted count
+towards the quota.
+
+### Convert a backup
+
+1. Pick a backup with `status` completed:
+   `cubecli vps backup list <vps_id> --json` (a backup already converted shows
+   its `snapshot_uuid`).
+2. Check the quota and tell the user the monthly cost (disk GB x price).
+   Confirm before creating: it is billable.
+3. Create it and follow the conversion (a few minutes):
+
+```bash
+cubecli snapshot create --vps <vps_id> --backup <backup_id> --name web-01-base \
+  --description "nginx + app, before go-live"
+cubecli snapshot get <snapshot_uuid> --json   # wait for status available
+```
+
+Statuses: `pending`, `converting`, `available`, `failed`, `deleting`. Only
+`available` snapshots can be deployed. A backup that is being restored or
+deleted, or whose VPS is being reinstalled, migrated or destroyed, can not be
+converted at that moment (409); retry once that task finishes.
+
+### Deploy from a snapshot
+
+```bash
+cubecli snapshot list --status available --json
+cubecli snapshot get <snapshot_uuid> --json   # disk_gb and deploy_estimates per location
+cubecli vps create --json --name web-02 --project 882 --location us-mia-1 \
+  --plan gp.small --snapshot <snapshot_uuid> --ssh 64
+```
+
+- `--snapshot` replaces `--template`; never pass both. `--cloudinit` is not
+  allowed with a snapshot.
+- The plan disk must be at least the snapshot `disk_gb`; Windows RAM minimums
+  still apply.
+- `deploy_estimates[]` gives the expected minutes per location; deploying far
+  from where the snapshot is stored (`remote: true`) takes longer. Tell the user.
+- At most **3 servers can deploy from the same snapshot at the same time**;
+  a fourth gets 409. To make more copies, wait until one is `active`.
+- After the deploy, `cubecli vps show <vps_id> --json` has
+  `source_snapshot_uuid` and `deploy_health`. `degraded` means the server is
+  running but its network was not confirmed from inside the guest: suggest the
+  user checks it through the console.
+
+Warn the user before deploying:
+
+- **Linux**: only hostname, user, password and SSH keys are applied, and the
+  machine-id is regenerated. If the image does not use cloud-init, the server
+  starts with the network and credentials of the source server.
+- **Windows**: the copy keeps the same SID as the source (run sysprep before
+  joining several copies to a domain). The license is the customer's: Windows
+  may ask to activate it again, especially in another location, and deploying
+  several copies with one license may break its terms. If the QEMU guest agent
+  was removed from the source, the copy starts with the network and
+  Administrator password of the source.
+
+### Manage and delete
+
+```bash
+cubecli snapshot list --vps <vps_id> --json
+cubecli snapshot update <snapshot_uuid> --name <n> --description <d>
+cubecli snapshot move-project <snapshot_uuid> --project <project_id>
+cubecli snapshot delete <snapshot_uuid> --force   # permanent, confirm first
+```
+
+Deleting stops the billing and does not affect servers already deployed from
+it. It is refused while the snapshot is converting or while a deploy uses it.
 
 ## Destroy
 

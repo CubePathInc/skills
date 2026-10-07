@@ -19,7 +19,7 @@ trap 'rm -rf "$TMP"' EXIT
 # skill -> command groups it vendors. README.md is the index of all groups.
 declare -a MAP=(
   "cubepath-cli:README auth login logout profile config project ssh-key location version mcp"
-  "cubepath-vps:vps availability-group baremetal"
+  "cubepath-vps:vps snapshot availability-group baremetal"
   "cubepath-networking:network nat-gateway floating-ip lb ddos-attack"
   "cubepath-dns-cdn:dns cdn"
   "cubepath-kubernetes:kubernetes"

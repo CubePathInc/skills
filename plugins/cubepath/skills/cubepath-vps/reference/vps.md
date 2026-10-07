@@ -71,6 +71,15 @@ Usage: `cubecli vps console <vps_id>`
 
 Create a new VPS instance
 
+Create a new VPS instance from an OS template (--template) or from a
+snapshot of your organization (--snapshot, see "cubecli snapshot list").
+
+A snapshot can be deployed in any location, on a plan whose disk is at least
+the snapshot disk. Custom cloud-init and apps are not available with a
+snapshot: on Linux only the hostname, user, password and SSH keys are applied
+and the machine-id is regenerated; Windows keeps the SID and licence of the
+source server. Up to 3 servers can deploy from one snapshot at the same time.
+
 Usage: `cubecli vps create [flags]`
 
 - `--availability-group string`: UUID of the availability group to place the VPS in
@@ -85,12 +94,13 @@ Usage: `cubecli vps create [flags]`
 - `--no-ipv6`: Disable public IPv6 (requires --network)
 - `--password string`: Root password
 - `--project int`: Project ID (required)
+- `--snapshot string`: UUID of a snapshot to deploy instead of a template (see cubecli snapshot list)
 - `-c, --cloudinit string`: Cloud-init configuration or file path
 - `-l, --location string`: Location name (required)
 - `-n, --name string`: VPS name (required)
 - `-p, --plan string`: Plan name (required)
 - `-s, --ssh intSlice`: SSH key IDs (repeatable)
-- `-t, --template string`: Template name (required)
+- `-t, --template string`: Template name (required unless --snapshot)
 
 ## `cubecli vps destroy`
 

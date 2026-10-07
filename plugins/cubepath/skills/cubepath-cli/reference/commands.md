@@ -31,9 +31,11 @@ Generated from the cubecli command tree with `cubecli docs markdown`. Do not edi
 - `nat-gateway`: Manage NAT gateways
 - `network`: Manage networks
 - `objectstorage`: Manage Object Storage buckets, access keys and replication (S3 compatible)
+- `org`: Inspect your organization
 - `profile`: Manage authentication profiles
 - `project`: Manage projects
 - `skills`: Install the CubePath skills for AI coding agents
+- `snapshot`: Manage VPS snapshots
 - `ssh-key`: Manage SSH keys
 - `transcoder`: Manage video transcoding jobs
 - `update`: Update CubeCLI to the latest version
