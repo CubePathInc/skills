@@ -1,7 +1,7 @@
 {
   "name": "cubepath",
   "description": "Deploy and manage CubePath infrastructure (VPS, baremetal, networking, DNS, CDN, Kubernetes, Object Storage) with the cubecli command-line tool.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": {
     "name": "CubePath",
     "email": "support@cubepath.com"
