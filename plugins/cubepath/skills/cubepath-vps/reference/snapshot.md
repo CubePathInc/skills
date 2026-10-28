@@ -15,7 +15,8 @@ writes of a database first if you need it consistent.
 With --backup it converts that completed backup instead (find the ID with
 "cubecli vps backup list <vps_id>").
 
-The snapshot is billed per GB of the VPS disk per month until you delete it.
+The snapshot is billed per GB actually stored per month (compressed, usually
+well below the disk size), never more than the full disk, until you delete it.
 It is queued and takes a few minutes: follow it with
 "cubecli snapshot get <uuid>" until its status is available.
 

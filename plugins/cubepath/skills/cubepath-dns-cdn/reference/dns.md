@@ -63,6 +63,7 @@ Usage: `cubecli dns healthcheck set <zone_uuid> <record_uuid> [flags]`
 - `--interval int`: Seconds between checks (10-3600) (default 60)
 - `--path string`: HTTP path, e.g. /health (http/https)
 - `--port int`: Port (required for tcp)
+- `--strict`: If every server fails, do not answer: serve only healthy records (default: answer with all of them)
 - `--target string`: Hostname or IP to probe (default: the record's value)
 - `--timeout int`: Timeout in seconds (1-60, below the interval) (default 5)
 - `--type string`: Check type: http, https, tcp or ping (required)
@@ -75,6 +76,7 @@ Examples:
   cubecli dns healthcheck set <zone_uuid> <record_uuid> --name web --type https --path /health
   cubecli dns hc set <zone_uuid> <record_uuid> --name db --type tcp --port 5432 --interval 30
   cubecli dns hc set <zone_uuid> <record_uuid> --name web --type http --expected-status 204 --disabled
+  cubecli dns hc set <zone_uuid> <record_uuid> --name db --type tcp --port 5432 --strict
 ```
 
 ## `cubecli dns record create`
