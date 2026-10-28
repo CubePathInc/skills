@@ -96,6 +96,8 @@ seconds): `cubecli objectstorage key list --json`.
 A lost secret cannot be recovered: create a new key and delete the old one
 (`cubecli objectstorage key delete <uuid|access key ID|name>`, confirm first).
 
+Edit a key instead of recreating it (same secret): [keys.md](keys.md).
+
 ## Using the bucket
 
 With the endpoint and region from `tiers` (or `bucket get`):
@@ -231,8 +233,8 @@ cubecli objectstorage bucket object-lock set backups --remove
   on objects and put or lift legal holds (`PutObjectRetention`,
   `PutObjectLegalHold`). Read-only keys can only read them.
 
-Keys that may remove governance locked versions (read_write only; it cannot be
-changed on an existing key, create another):
+Keys that may remove governance locked versions (read_write only; change it
+later with `key update --bypass-governance[=false]`):
 
 ```bash
 cubecli objectstorage key create --name backup-admin --tier ia --bypass-governance --output env > .env

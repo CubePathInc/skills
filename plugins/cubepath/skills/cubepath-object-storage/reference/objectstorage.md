@@ -398,7 +398,9 @@ present and future. --output prints ready-to-use credentials:
 
 --bypass-governance (read_write keys only) lets the key delete versions under
 governance retention in buckets with Object Lock, sending the
-x-amz-bypass-governance-retention header. It cannot be changed later.
+x-amz-bypass-governance-retention header. Name, permission, buckets and the
+bypass can be edited later with "key update"; the expiry, tier and project
+cannot.
 
 Usage: `cubecli objectstorage key create [flags]`
 
@@ -436,6 +438,40 @@ Usage: `cubecli objectstorage key list [flags]`
 
 - `--tier string`: Only keys of this tier (slug, uuid or ia)
 - `-p, --project int`: Only keys of this project ID
+
+## `cubecli objectstorage key update`
+
+Edit an access key's name, permission, buckets or governance bypass
+
+Edit an access key in place (uuid, access key ID or name). The access key ID and
+the secret do not change. Only the flags given are sent.
+
+--bucket limits the key to those buckets (replacing its current list);
+--all-buckets makes it reach every bucket of its project in its tier, present
+and future. A change of permission, buckets or bypass needs the key to be
+active and applies within a few seconds; the name can always be changed.
+
+--bypass-governance applies to read_write keys only: to turn a bypass key into
+read_only, give --permission read_only --bypass-governance=false. The expiry,
+tier and project are fixed when the key is created.
+
+Usage: `cubecli objectstorage key update <key> [flags]`
+
+- `--all-buckets`: Let the key reach every bucket of its project in its tier, present and future
+- `--bucket stringSlice`: Limit the key to these buckets (name or uuid, repeatable; replaces the current list)
+- `--bypass-governance`: Allow deleting versions under governance retention (read_write keys only): --bypass-governance or --bypass-governance=false
+- `--permission string`: read_write or read_only
+- `-n, --name string`: New key name
+
+Examples:
+
+```
+  cubecli s3 key update web --name website
+  cubecli s3 key update web --permission read_only
+  cubecli s3 key update web --bucket photos --bucket backups
+  cubecli s3 key update web --all-buckets
+  cubecli s3 key update nightly --bypass-governance=false
+```
 
 ## `cubecli objectstorage presign`
 
