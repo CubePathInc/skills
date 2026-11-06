@@ -4,6 +4,7 @@
 Checks
 - manifest.json lists exactly the skill directories, and its version matches
   plugin.json.
+- The minimum cubecli in README.md matches min_cubecli_version in manifest.json.
 - Each SKILL.md has frontmatter with `name` (= directory name, kebab-case, max
   64 chars) and `description` (max 1024 chars), and stays under 500 lines.
 - Relative links resolve.
@@ -141,6 +142,12 @@ def main() -> int:
 
     if manifest.get("version") != plugin.get("version"):
         err("manifest.json", f"version {manifest.get('version')} != plugin.json {plugin.get('version')}")
+
+    readme_min = re.search(r"You need \[cubecli\]\([^)]*\) (\d+\.\d+\.\d+) or later", (ROOT / "README.md").read_text())
+    if not readme_min:
+        err("README.md", "no 'You need [cubecli](...) X.Y.Z or later' line")
+    elif readme_min.group(1) != manifest.get("min_cubecli_version"):
+        err("README.md", f"cubecli {readme_min.group(1)} != manifest.json min_cubecli_version {manifest.get('min_cubecli_version')}")
 
     dirs = sorted(p.name for p in SKILLS.iterdir() if p.is_dir())
     if sorted(manifest.get("skills", [])) != dirs:
