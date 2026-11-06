@@ -1,6 +1,6 @@
 {
   "version": "0.5.1",
-  "min_cubecli_version": "1.18.0",
+  "min_cubecli_version": "1.19.0",
   "skills": [
     "cubepath-cli",
     "cubepath-vps",

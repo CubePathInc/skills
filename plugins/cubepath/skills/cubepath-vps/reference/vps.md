@@ -82,6 +82,7 @@ source server. Up to 3 servers can deploy from one snapshot at the same time.
 
 Usage: `cubecli vps create [flags]`
 
+- `--addon stringSlice`: Billing add-on to contract at deploy, by slug (repeatable), e.g. vps-port-10g
 - `--availability-group string`: UUID of the availability group to place the VPS in
 - `--backups`: Enable backups
 - `--firewall intSlice`: Firewall group IDs (repeatable)
