@@ -55,6 +55,19 @@ Rules the API enforces:
   naming the minimum.
 - Windows templates ignore SSH keys and cloud-init; the user is `Administrator`.
 
+### 10 Gbps port
+
+`--addon vps-port-10g` deploys the VPS with a 10 Gbps public port instead of 1
+Gbps, for $20 per month billed by the hour. It is a billable extra: confirm it
+with the user. It needs a project billed by the hour, Barcelona, Houston or
+Miami, a public IP, and an organization that has made a payment and is at least
+7 days old; the API refuses it otherwise and says why.
+
+Add-ons can only be picked at deploy. To add or remove one on an existing VPS,
+the user has to ask support. The plan's traffic allowance does not change: excess
+is billed at $2 per TB, and the port goes back to 1 Gbps when the excess in a month
+reaches $200 or there is excess and the balance is $0 or less.
+
 ### Cloud-init
 
 `-c/--cloudinit` takes inline YAML or a file path (Linux only, max 64 KB). It
