@@ -220,8 +220,17 @@ Usage: `cubecli vps reinstall <vps_id> [flags]`
 
 Resize a VPS instance
 
+Move a VPS to another plan.
+
+Without --grow-disk only CPU and RAM change and the disk stays as it is, so
+the resize is reversible: you can go back to a smaller plan as long as its
+included disk still fits the current disk. With --grow-disk the disk also
+grows to the size the new plan includes. Growing the disk is permanent:
+disks never shrink.
+
 Usage: `cubecli vps resize <vps_id> [flags]`
 
+- `--grow-disk`: Also grow the disk to the new plan's size (permanent); without it only CPU and RAM change and the disk stays
 - `-f, --force`: Skip confirmation
 - `-p, --plan string`: New plan name (required)
 

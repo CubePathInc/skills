@@ -82,7 +82,8 @@ To find a VPS by name:
 | Goal | Command | Notes |
 |---|---|---|
 | Rename / relabel | `cubecli vps update <id> --name <n> --label <l>` | |
-| Bigger plan | `cubecli vps resize <id> --plan <plan> --force` | billable; confirm first; expect 5 to 10 minutes of downtime |
+| Change plan | `cubecli vps resize <id> --plan <plan> --force` | billable; confirm first; expect 5 to 10 minutes of downtime. Changes CPU, RAM and price only: the disk keeps its size, so the VPS can later move to a smaller plan whose disk still fits (`vps show` gives the real disk). The plan's price is the same either way |
+| Grow the disk | `cubecli vps resize <id> --plan <plan> --grow-disk --force` | also grows the disk to the plan's storage (the current plan to grow into what it includes); permanent, disks never shrink, so confirm explicitly |
 | New OS (wipes disk) | `cubecli vps reinstall <id> --template <t> --force` | destroys all data; confirm explicitly |
 | Power | `cubecli vps power restart <id>` (also `start`, `stop`, `reset`) | `stop` and `reset` are abrupt; prefer `restart` |
 | Root password | `cubecli vps change-password <id> --new-password <p>` | ask the user for the password |
