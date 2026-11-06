@@ -40,6 +40,18 @@ Installs the latest release for the agents found on your machine: Claude Code
 `cubecli login` offers to do it after your first login. `cubecli skills update`
 keeps them current.
 
+### With the skills CLI
+
+```bash
+npx skills add CubePathInc/skills
+```
+
+Needs Node.js 22.20 or later. Add `-a claude-code` to pick your agent,
+`--skill cubepath-vps` for a single skill, or `-g` to install for your user
+instead of the current project. It installs the current `main` branch, not a
+tagged release. `npx skills update` keeps them current. Also listed on
+[skills.sh](https://skills.sh/cubepathinc/skills).
+
 ### Manually
 
 Download `cubepath-skills-vX.Y.Z.tar.gz` from the

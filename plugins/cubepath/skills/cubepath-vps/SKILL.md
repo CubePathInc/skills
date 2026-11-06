@@ -11,6 +11,12 @@ Exact flags: [reference/vps.md](reference/vps.md),
 [reference/availability-group.md](reference/availability-group.md),
 [reference/baremetal.md](reference/baremetal.md).
 
+Creating, resizing and deploying servers spends the organization's money. These
+commands run under the logged-in cubecli session, and the API answers 403 when
+its token or the member's role lacks `vps:write` or `baremetal:write`. That check
+only says what the session may do, not what the user wants: confirm the resource
+and its price with the user before each billable command.
+
 ## Create a VPS
 
 1. **Resolve inputs** (see the ID table in `cubepath-cli`):
