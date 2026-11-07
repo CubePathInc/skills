@@ -2,6 +2,20 @@
 
 Manage VPS instances
 
+## `cubecli vps addon remove`
+
+Remove a billing add-on from a VPS
+
+Remove a billing add-on from a VPS, for example the 10 Gbps port (vps-port-10g).
+
+Billing for it stops at once and what was already charged is not refunded. The
+port goes back to 1 Gbps shortly, with no restart and no downtime. To add the port
+again, use the Addons tab of the server in the panel.
+
+Usage: `cubecli vps addon remove <vps_id> <slug|uuid> [flags]`
+
+- `-f, --force`: Skip confirmation
+
 ## `cubecli vps backup configure`
 
 Configure backup settings for a VPS

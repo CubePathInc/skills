@@ -63,11 +63,13 @@ with the user. It needs a project billed by the hour, Barcelona, Houston or
 Miami, a public IP, and an organization that has made a payment and is at least
 7 days old; the API refuses it otherwise and says why.
 
-cubecli only picks add-ons at deploy. On an existing VPS, the user adds or removes
-the port in the Addons tab of the server in the panel, or with `POST /vps/{vps_id}/addons`
-and `DELETE /vps/{vps_id}/addons/{contract_uuid}` of the API. A running server needs a
-restart from the panel to reach full speed. Removing it stops the billing at once and
-needs no restart.
+To remove it from an existing VPS, confirm with the user and run
+`cubecli vps addon remove <vps_id> vps-port-10g`. The billing stops at once, nothing
+already charged is refunded, and the port goes back to 1 Gbps with no restart.
+
+cubecli can not add the port to a VPS that already exists: the user does it in the
+Addons tab of the server in the panel, or with `POST /vps/{vps_id}/addons` of the API.
+A running server then needs a restart from the panel to reach full speed.
 
 The plan's traffic allowance does not change: excess
 is billed at $2 per TB and the port stays at 10 Gbps. At full speed that is about 4.5
