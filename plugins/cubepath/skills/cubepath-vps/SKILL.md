@@ -65,8 +65,9 @@ Miami, a public IP, and an organization that has made a payment and is at least
 
 Add-ons can only be picked at deploy. To add or remove one on an existing VPS,
 the user has to ask support. The plan's traffic allowance does not change: excess
-is billed at $2 per TB, and the port goes back to 1 Gbps when the excess in a month
-reaches $200 or there is excess and the balance is $0 or less.
+is billed at $2 per TB and the port stays at 10 Gbps. At full speed that is about 4.5
+TB per hour, so say so when you confirm it. The customer gets emails at 50, 80 and 100
+percent of the allowance, and at 25, 50 and 100 TB over it, then every 100 TB.
 
 ### Cloud-init
 
