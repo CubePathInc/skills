@@ -63,8 +63,13 @@ with the user. It needs a project billed by the hour, Barcelona, Houston or
 Miami, a public IP, and an organization that has made a payment and is at least
 7 days old; the API refuses it otherwise and says why.
 
-Add-ons can only be picked at deploy. To add or remove one on an existing VPS,
-the user has to ask support. The plan's traffic allowance does not change: excess
+cubecli only picks add-ons at deploy. On an existing VPS, the user adds or removes
+the port in the Addons tab of the server in the panel, or with `POST /vps/{vps_id}/addons`
+and `DELETE /vps/{vps_id}/addons/{contract_uuid}` of the API. A running server needs a
+restart from the panel to reach full speed. Removing it stops the billing at once and
+needs no restart.
+
+The plan's traffic allowance does not change: excess
 is billed at $2 per TB and the port stays at 10 Gbps. At full speed that is about 4.5
 TB per hour, so say so when you confirm it. The customer gets emails at 50, 80 and 100
 percent of the allowance, and at 25, 50 and 100 TB over it, then every 100 TB.
