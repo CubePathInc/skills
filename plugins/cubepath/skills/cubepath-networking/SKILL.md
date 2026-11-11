@@ -39,7 +39,7 @@ cubecli network route list <network_id> --json
 ```
 
 `--next-hop-type` is `ip`, `vps` or `baremetal`; the target is an IP or the
-numeric server ID.
+server number (for a baremetal, the number, not its uuid).
 
 ## NAT gateway (outbound Internet for private servers)
 
@@ -63,7 +63,7 @@ Public IPs that belong to the organization and can move between servers.
 ```bash
 cubecli floating-ip list --json          # {"single_ips": [...], "subnets": [...]}
 cubecli floating-ip acquire --location eu-bcn-1 --type IPv4
-cubecli floating-ip assign <address> --vps <vps_id>        # or --baremetal <id>
+cubecli floating-ip assign <address> --vps <vps_id>        # or --baremetal <number or uuid>
 cubecli floating-ip unassign <address> --force
 cubecli floating-ip reverse-dns <address> --hostname mail.example.com
 cubecli floating-ip release <address> --force               # gives it back, irreversible
@@ -90,7 +90,7 @@ cubecli lb target add <lb_uuid> <listener_uuid> --type vps --target <vps_id>
 cubecli lb health-check configure <lb_uuid> <listener_uuid> --path /healthz
 ```
 
-- `--target` depends on `--type`: the numeric ID for `vps` and `baremetal`,
+- `--target` depends on `--type`: the server number for `vps` and `baremetal` (a baremetal uuid is not accepted here),
   the group UUID for `availability_group` (targets every VPS in it, the usual
   choice for redundant web servers).
 - The UUID used later by `target update|drain|remove` is the target's own UUID

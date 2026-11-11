@@ -1,6 +1,6 @@
 # cubecli baremetal
 
-Manage baremetal servers
+Manage baremetal servers (a server is named by its number or its uuid)
 
 ## `cubecli baremetal deploy`
 
@@ -23,13 +23,13 @@ Usage: `cubecli baremetal deploy [flags]`
 
 Create an IPMI proxy session
 
-Usage: `cubecli baremetal ipmi <id>`
+Usage: `cubecli baremetal ipmi <id|uuid>`
 
 ## `cubecli baremetal kvm`
 
 Show the KVM console URL and credentials of a server
 
-Usage: `cubecli baremetal kvm <id>`
+Usage: `cubecli baremetal kvm <id|uuid>`
 
 ## `cubecli baremetal list`
 
@@ -53,25 +53,25 @@ Usage: `cubecli baremetal model list [flags]`
 
 Disable monitoring for a baremetal server
 
-Usage: `cubecli baremetal monitoring disable <id>`
+Usage: `cubecli baremetal monitoring disable <id|uuid>`
 
 ## `cubecli baremetal monitoring enable`
 
 Enable monitoring for a baremetal server
 
-Usage: `cubecli baremetal monitoring enable <id>`
+Usage: `cubecli baremetal monitoring enable <id|uuid>`
 
 ## `cubecli baremetal monitoring status`
 
 Show monitoring status for a baremetal server
 
-Usage: `cubecli baremetal monitoring status <id>`
+Usage: `cubecli baremetal monitoring status <id|uuid>`
 
 ## `cubecli baremetal move-project`
 
 Move a baremetal server to another project in the same organization
 
-Usage: `cubecli baremetal move-project <id> [flags]`
+Usage: `cubecli baremetal move-project <id|uuid> [flags]`
 
 Aliases: move
 
@@ -84,7 +84,7 @@ Attach a server to a private network in its location
 Attach a baremetal server to a private network. An address is picked
 automatically; restart the server to apply the change.
 
-Usage: `cubecli baremetal network attach <id> [flags]`
+Usage: `cubecli baremetal network attach <id|uuid> [flags]`
 
 - `--network int`: Private network ID (required)
 
@@ -92,7 +92,7 @@ Usage: `cubecli baremetal network attach <id> [flags]`
 
 Detach a server from its private network
 
-Usage: `cubecli baremetal network detach <id> [flags]`
+Usage: `cubecli baremetal network detach <id|uuid> [flags]`
 
 - `-f, --force`: Skip confirmation prompt
 
@@ -100,31 +100,31 @@ Usage: `cubecli baremetal network detach <id> [flags]`
 
 List the operating systems and disk layouts a server can be installed with
 
-Usage: `cubecli baremetal os <id>`
+Usage: `cubecli baremetal os <id|uuid>`
 
 ## `cubecli baremetal power restart`
 
 Restart a baremetal server
 
-Usage: `cubecli baremetal power restart <id>`
+Usage: `cubecli baremetal power restart <id|uuid>`
 
 ## `cubecli baremetal power start`
 
 Power on a baremetal server
 
-Usage: `cubecli baremetal power start <id>`
+Usage: `cubecli baremetal power start <id|uuid>`
 
 ## `cubecli baremetal power stop`
 
 Power off a baremetal server
 
-Usage: `cubecli baremetal power stop <id>`
+Usage: `cubecli baremetal power stop <id|uuid>`
 
 ## `cubecli baremetal protection`
 
 Enable or disable destruction protection
 
-Usage: `cubecli baremetal protection <id> [flags]`
+Usage: `cubecli baremetal protection <id|uuid> [flags]`
 
 - `--disable`: Disable destruction protection
 - `--enable`: Enable destruction protection
@@ -133,7 +133,7 @@ Usage: `cubecli baremetal protection <id> [flags]`
 
 Cancel a pending or running reinstallation
 
-Usage: `cubecli baremetal reinstall cancel <id> [flags]`
+Usage: `cubecli baremetal reinstall cancel <id|uuid> [flags]`
 
 - `-f, --force`: Skip confirmation prompt
 
@@ -141,7 +141,7 @@ Usage: `cubecli baremetal reinstall cancel <id> [flags]`
 
 Start a baremetal server reinstallation
 
-Usage: `cubecli baremetal reinstall start <id> [flags]`
+Usage: `cubecli baremetal reinstall start <id|uuid> [flags]`
 
 - `--disk-layout string`: Disk layout name
 - `--hostname string`: Hostname for the server (required)
@@ -156,19 +156,19 @@ Check reinstallation status
 
 Show whether an OS reinstallation is running: the server status is deploying while it runs.
 
-Usage: `cubecli baremetal reinstall status <id>`
+Usage: `cubecli baremetal reinstall status <id|uuid>`
 
 ## `cubecli baremetal rescue`
 
 Boot baremetal server into rescue mode
 
-Usage: `cubecli baremetal rescue <id>`
+Usage: `cubecli baremetal rescue <id|uuid>`
 
 ## `cubecli baremetal reset-bmc`
 
 Reset the BMC of a baremetal server
 
-Usage: `cubecli baremetal reset-bmc <id> [flags]`
+Usage: `cubecli baremetal reset-bmc <id|uuid> [flags]`
 
 - `-f, --force`: Skip confirmation prompt
 
@@ -176,31 +176,31 @@ Usage: `cubecli baremetal reset-bmc <id> [flags]`
 
 Show BMC sensor data for a baremetal server
 
-Usage: `cubecli baremetal sensors <id>`
+Usage: `cubecli baremetal sensors <id|uuid>`
 
 ## `cubecli baremetal show`
 
 Show baremetal server details
 
-Usage: `cubecli baremetal show <id>`
+Usage: `cubecli baremetal show <id|uuid>`
 
 ## `cubecli baremetal ssh-key add`
 
 Add SSH keys to a server (used by the next install)
 
-Usage: `cubecli baremetal ssh-key add <id> <ssh_key_id>...`
+Usage: `cubecli baremetal ssh-key add <id|uuid> <ssh_key_id>...`
 
 ## `cubecli baremetal ssh-key remove`
 
 Remove an SSH key from a server
 
-Usage: `cubecli baremetal ssh-key remove <id> <ssh_key_id>`
+Usage: `cubecli baremetal ssh-key remove <id|uuid> <ssh_key_id>`
 
 ## `cubecli baremetal update`
 
 Update a baremetal server
 
-Usage: `cubecli baremetal update <id> [flags]`
+Usage: `cubecli baremetal update <id|uuid> [flags]`
 
 - `--hostname string`: New hostname
 - `--tags string`: Tags for the server

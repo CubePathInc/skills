@@ -274,5 +274,7 @@ cubecli baremetal show <id> --json
 cubecli baremetal reinstall status <id>
 ```
 
+A baremetal `<id>` is the server number or its uuid (`show` and `/projects` list both).
+
 `baremetal rescue`, `reset-bmc` and `reinstall start` interrupt the server;
 confirm first. `cubecli baremetal ipmi <id>` opens a remote console session for the user.
