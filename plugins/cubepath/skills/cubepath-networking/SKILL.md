@@ -90,8 +90,8 @@ cubecli lb target add <lb_uuid> <listener_uuid> --type vps --target <vps_id>
 cubecli lb health-check configure <lb_uuid> <listener_uuid> --path /healthz
 ```
 
-- `--target` depends on `--type`: the server number for `vps` and `baremetal` (a baremetal uuid is not accepted here),
-  the group UUID for `availability_group` (targets every VPS in it, the usual
+- `--target` depends on `--type`: the server number for `vps` and `baremetal`
+  (a baremetal uuid is not accepted here), the group UUID for `availability_group` (targets every VPS in it, the usual
   choice for redundant web servers).
 - The UUID used later by `target update|drain|remove` is the target's own UUID
   from `lb show`, not the VPS ID.
