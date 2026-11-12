@@ -13,7 +13,7 @@ Generated from the cubecli command tree with `cubecli docs markdown`. Do not edi
 - `alert`: Manage cloud alerts and their notification channels
 - `auth`: Log in, log out and inspect credentials
 - `availability-group`: Manage VPS availability groups
-- `baremetal`: Manage baremetal servers (a server is named by its number or its uuid)
+- `baremetal`: Manage baremetal servers (a server is named by its uuid)
 - `cdn`: Manage CDN zones and distribution
 - `config`: Configure CubeCLI
 - `ddos-attack`: Manage DDoS attack information

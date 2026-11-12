@@ -11,7 +11,7 @@ Usage: `cubecli network bgp-peer create <network_id> [flags]`
 - `--description string`: Description
 - `--max-prefix int`: Maximum prefixes accepted (1-1000) (default 100)
 - `--remote-asn int64`: ASN of your router (not 64512) (required)
-- `--target string`: VPS ID, baremetal server number (not its uuid) or IP inside the network (required)
+- `--target string`: VPS ID, baremetal server uuid or IP inside the network (required)
 - `--type string`: Peer type: vps, baremetal or ip (required)
 
 Examples:
@@ -92,7 +92,7 @@ Usage: `cubecli network route create <network_id> [flags]`
 
 - `--description string`: Optional description
 - `-d, --destination string`: Destination CIDR (e.g. 0.0.0.0/0) (required)
-- `-g, --next-hop-target string`: Next hop target (IP address, or VPS/baremetal server number, not its uuid) (required)
+- `-g, --next-hop-target string`: Next hop target (IP address, VPS ID or baremetal server uuid) (required)
 - `-t, --next-hop-type string`: Next hop type (ip, vps, baremetal) (required)
 
 ## `cubecli network route delete`

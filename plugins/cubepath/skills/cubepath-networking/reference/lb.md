@@ -130,7 +130,7 @@ Add a target to a listener
 
 Usage: `cubecli lb target add <lb_uuid> <listener_uuid> [flags]`
 
-- `--target string`: Target UUID (required)
+- `--target string`: Target: VPS ID, baremetal server uuid or availability group UUID (required)
 - `-p, --port int`: Target port
 - `-t, --type string`: Target type (vps, baremetal, availability_group) (required)
 - `-w, --weight int`: Target weight (1-100) (default 100)

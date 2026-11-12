@@ -17,7 +17,7 @@ Assign a floating IP to a server
 
 Usage: `cubecli floating-ip assign <address> [flags]`
 
-- `--baremetal string`: Baremetal server to assign to (number or uuid)
+- `--baremetal string`: Baremetal server uuid to assign to
 - `--vps int`: VPS ID to assign to
 
 ## `cubecli floating-ip list`

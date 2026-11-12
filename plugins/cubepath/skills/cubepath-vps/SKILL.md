@@ -270,12 +270,12 @@ the model and price first.
 cubecli baremetal model list --in-stock --json
 cubecli baremetal deploy --model <m> --location <l> --project <id> \
   --hostname <h> --os <os> --password <p> --ssh <key_id>
-cubecli baremetal show <id> --json
-cubecli baremetal reinstall status <id>
+cubecli baremetal show <uuid> --json
+cubecli baremetal reinstall status <uuid>
 ```
 
-A baremetal `<id>` is the server number (the ID column) or its uuid when the API
-returns one.
+A baremetal server is named by its uuid, the ID column of `cubecli baremetal list`
+(`.id` in `--json`). Server numbers are not accepted.
 
 `baremetal rescue`, `reset-bmc` and `reinstall start` interrupt the server;
-confirm first. `cubecli baremetal ipmi <id>` opens a remote console session for the user.
+confirm first. `cubecli baremetal ipmi <uuid>` opens a remote console session for the user.
