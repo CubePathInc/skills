@@ -19,7 +19,7 @@ before anything destructive or billable, and wait for asynchronous operations.
 
 ## Install
 
-You need [cubecli](https://github.com/CubePathInc/cubecli) 1.20.0 or later,
+You need [cubecli](https://github.com/CubePathInc/cubecli) 2.0.0 or later,
 logged in with `cubecli login`.
 
 ### Claude Code
