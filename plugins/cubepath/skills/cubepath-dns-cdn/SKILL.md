@@ -118,6 +118,7 @@ Rules apply in `--priority` order (lower first, default 100).
 |---|---|
 | `firewall_ip` | `{"block_ips": ["198.51.100.0/24"], "allow_ips": []}` |
 | `firewall_country` | `{"block_countries": ["XX"]}` or `{"allow_countries": ["ES", "FR"]}` |
+| `firewall_asn` | `{"block_asns": [13335, 15169]}` (client AS numbers, 1 to 4294967295; blocks only, no allow list) |
 | `firewall_ua` | `{"block_patterns": ["BadBot*"]}` |
 | `js_challenge` | `{"enabled": true}` |
 | `rate_limit` | `{"requests": 100, "period": 60, "by": "ip"}` (`period` 1, 10 or 60; `by` `ip` or `ip_path`) |
