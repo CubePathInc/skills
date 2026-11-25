@@ -438,7 +438,7 @@ Usage: `cubecli cdn zone update <zone_uuid> [flags]`
 
 - `--cache-tag-header string`: Origin response header that carries the cache tags (empty turns tag purges off)
 - `--certificate string`: SSL certificate
-- `--compression`: Compress text responses at the edge (--compression=false to turn it off)
+- `--compression`: Compress text responses at the edge; off by default, with it off nothing is compressed, gzip included (--compression=false to turn it off)
 - `--ssl-type string`: SSL type
 - `-d, --domain string`: Custom domain
 - `-n, --name string`: New name for the CDN zone

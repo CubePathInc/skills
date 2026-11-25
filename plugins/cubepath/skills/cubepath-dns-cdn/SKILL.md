@@ -151,7 +151,7 @@ cubecli cdn cache purge <zone_uuid> --tag news --tag product-42      # cache tag
 cubecli cdn cache purge <zone_uuid> --host www.example.com           # one hostname
 cubecli cdn cache purge <zone_uuid> --everything
 cubecli cdn zone update <zone_uuid> --cache-tag-header Cache-Tag     # tag purges: the origin header with the tags
-cubecli cdn zone update <zone_uuid> --compression                    # Brotli, Zstandard or gzip for text; off by default
+cubecli cdn zone update <zone_uuid> --compression                    # Brotli, Zstandard or gzip for text; off by default (no edge compression at all, gzip included, until it is on)
 ```
 
 Purge by tag needs the zone's cache tag header; files cached before it was set
