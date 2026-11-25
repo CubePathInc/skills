@@ -500,7 +500,7 @@ Usage: `cubecli cdn zone update <zone_uuid> [flags]`
 - `--compression`: Compress text responses at the edge; off by default, with it off nothing is compressed, gzip included (--compression=false to turn it off)
 - `--ssl-type string`: SSL type
 - `--waf-exclude-categories stringSlice`: Categories the managed WAF ignores (replaces the list, up to 64; pass an empty value to clear)
-- `--waf-exclude-rule-ids intSlice`: Rule ids the managed WAF ignores (replaces the list, up to 256; pass an empty value to clear)
+- `--waf-exclude-rule-ids stringSlice`: Rule ids the managed WAF ignores (replaces the list, up to 256; pass an empty value to clear)
 - `--waf-level int`: Managed WAF sensitivity level: 1 or 2
 - `--waf-mode string`: Managed WAF detection mode: off or log (log only, nothing is blocked)
 - `-d, --domain string`: Custom domain
