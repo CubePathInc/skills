@@ -140,7 +140,7 @@ Cache rule options:
 - A `url_rewrite` rule changes the path or query the origin receives, and the
   cache stores the object under the rewritten URL (two public URLs that rewrite
   to the same one share a copy). Redirects and firewall rules see the public
-  URL. A purge by path names the rewritten path. A zone can have at most 10
+  URL. Purge the URL your visitors use: the node applies the same rewrites to find the object. A zone can have at most 10
   enabled `url_rewrite` rules.
 
 ### Purge and settings
