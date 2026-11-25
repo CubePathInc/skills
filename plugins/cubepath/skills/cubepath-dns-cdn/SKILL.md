@@ -80,8 +80,9 @@ path that answers 2xx/3xx without cookies, because the edge sends no session.
 An HTTP check that fails takes the origin out, and if it is the only origin of
 the zone the zone answers 503. All the origins of a zone share one check, the
 one of the first origin by priority with its check enabled; the check flags of
-the others are stored and do not apply. `--no-health-check` turns it off, and the
-origin then shows `not checked` in `cubecli cdn origin list` (the API says `unknown`).
+the others are stored and do not apply. `--no-health-check` turns it off. While another
+origin of the zone has its check on, the nodes still check this one too; when none has
+it on, `cubecli cdn origin list` shows `not checked` (the API says `unknown`).
 
 An Object Storage bucket can be an origin too: `cubecli cdn origin create
 <zone_uuid> --name photos --bucket photos` (name or uuid, no address flags).
