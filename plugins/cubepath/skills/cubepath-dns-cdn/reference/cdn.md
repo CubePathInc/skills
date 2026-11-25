@@ -4,20 +4,26 @@ Manage CDN zones and distribution
 
 ## `cubecli cdn cache purge`
 
-Purge paths, path prefixes or the whole cache of a zone
+Purge paths, path prefixes, cache tags, hostnames or the whole cache of a zone
 
-Purge cached content on every edge location. Give up to 100 paths
-starting with "/"; a trailing "*" purges every URL under a prefix. --everything
-purges the whole zone. Both the system and the custom domain are purged.
+Purge cached content on every edge location. Give exactly one of:
+up to 100 paths starting with "/" (a trailing "*" purges every URL under a prefix),
+--tag (up to 30 cache tags, needs the zone's cache tag header), --host (one or two
+of the zone's hostnames) or --everything. Without --host, both the system and the
+custom domain are purged.
 
 Usage: `cubecli cdn cache purge <zone_uuid> [path...] [flags]`
 
 - `--everything`: Purge the whole cache of the zone
+- `--host stringSlice`: Purge the objects cached for this hostname of the zone (up to 2)
+- `--tag stringSlice`: Purge the objects with this cache tag (repeat or comma separate, up to 30)
 
 Examples:
 
 ```
   cubecli cdn cache purge <zone_uuid> /assets/app.css "/images/*"
+  cubecli cdn cache purge <zone_uuid> --tag news --tag product-42
+  cubecli cdn cache purge <zone_uuid> --host www.example.com
   cubecli cdn cache purge <zone_uuid> --everything
 ```
 
@@ -222,6 +228,14 @@ Usage: `cubecli cdn plan list`
 
 Create a new CDN rule
 
+Create an edge rule. --action is a JSON object that depends on --type:
+  cache         {"ttl": 3600, "browser_ttl": 600} plus optional "cache_everything" (also cache HTML,
+                JSON and XML), "grace", "stale_if_error" and "status_ttl" ({"404": 60})
+  cache_key     {"query": "none"} (all, none, allow or strip, with "query_params"), "vary_device"
+                and "vary_headers". Adding, changing or removing one empties the cache of the zone.
+  url_rewrite   {"path": {"mode": "prefix", "from": "/old/", "to": "/new/"}, "strip_query": ["utm_*"],
+                "set_query": {"src": "cdn"}}. The origin gets the rewritten URL and so does the cache.
+
 Usage: `cubecli cdn rule create <zone_uuid> [flags]`
 
 - `--disabled`: Create rule in disabled state
@@ -229,7 +243,15 @@ Usage: `cubecli cdn rule create <zone_uuid> [flags]`
 - `-m, --match string`: Match conditions (JSON string)
 - `-n, --name string`: Name of the rule (required)
 - `-p, --priority int`: Rule priority (default 100)
-- `-t, --type string`: Rule type (cache, cache_bypass, redirect, header_request, header_response) (required)
+- `-t, --type string`: Rule type (cache, cache_key, cache_bypass, url_rewrite, redirect, header_request, header_response) (required)
+
+Examples:
+
+```
+  cubecli cdn rule create <zone_uuid> --name key --type cache_key --action '{"query":"none"}'
+  cubecli cdn rule create <zone_uuid> --name old --type url_rewrite \
+    --action '{"path":{"mode":"prefix","from":"/old/","to":"/new/"}}'
+```
 
 ## `cubecli cdn rule delete`
 
@@ -414,7 +436,9 @@ Update a CDN zone
 
 Usage: `cubecli cdn zone update <zone_uuid> [flags]`
 
+- `--cache-tag-header string`: Origin response header that carries the cache tags (empty turns tag purges off)
 - `--certificate string`: SSL certificate
+- `--compression`: Compress text responses at the edge (--compression=false to turn it off)
 - `--ssl-type string`: SSL type
 - `-d, --domain string`: Custom domain
 - `-n, --name string`: New name for the CDN zone

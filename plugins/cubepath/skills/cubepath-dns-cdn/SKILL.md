@@ -100,8 +100,10 @@ no spaces (use `*`), quotes, braces or `#`.
 
 | `--type` | `--action` |
 |---|---|
-| `cache` | `{"ttl": 86400, "browser_ttl": 3600}` (seconds; `browser_ttl` optional) |
+| `cache` | `{"ttl": 86400, "browser_ttl": 3600}` (seconds; `browser_ttl` optional). Optional: `"cache_everything": true`, `"grace"`, `"stale_if_error"`, `"status_ttl"` |
+| `cache_key` | `{"query": "none"}`. `query` is `all`, `none`, `allow` or `strip` (the last two need `"query_params": ["page", "utm_*"]`); optional `"vary_device": true` and `"vary_headers": ["Accept-Language"]` |
 | `cache_bypass` | `{}` |
+| `url_rewrite` | `{"path": {"mode": "prefix", "from": "/old/", "to": "/new/"}, "strip_query": ["utm_*"], "set_query": {"src": "cdn"}}`; `mode` is `exact`, `prefix` or `regex` |
 | `redirect` | `{"to": "https://example.com/new", "status": 301}` (301, 302, 307, 308) |
 | `header_request` / `header_response` | `{"name": "X-Frame-Options", "value": "DENY"}` (empty value removes the header) |
 
@@ -116,6 +118,44 @@ cubecli cdn rule create <zone_uuid> --name static --type cache \
 ```
 
 Rules apply in `--priority` order (lower first, default 100).
+
+Cache rule options:
+
+- `cache_everything` also caches HTML, JSON and XML (by default they are not).
+  Requests with an `Authorization` header and responses marked `private` or
+  `no-store` or that set a cookie are never cached.
+- `grace` (seconds, 0 to 2592000) serves an expired copy while the edge fetches
+  a new one; `stale_if_error` (0, or at least twice `grace`) keeps serving it
+  when the origin fails; `status_ttl` caches some statuses for a given time,
+  `{"404": 60, "5xx": 5}` (301, 302, 307, 308, 404, 410, 451 up to 86400 s; 500,
+  502, 503, 504, 5xx up to 300 s). They need a `ttl` above 0.
+- A `cache_key` rule decides what makes a different cached copy: ignore or
+  allow-list query parameters, split by device, or by up to 3 request headers
+  (`Accept-Language`, `Accept`, `Origin`, `X-*`). At most one per zone without
+  `--match`, and every one must use the same `vary_device`. **Adding, changing,
+  disabling or deleting one empties the cache of the whole zone**: confirm with
+  the user first and prefer a quiet moment. With `none` or `strip` the ignored
+  parameters are also removed from the request to the origin; with `allow` the
+  origin still gets the whole query string.
+- A `url_rewrite` rule changes the path or query the origin receives, and the
+  cache stores the object under the rewritten URL (two public URLs that rewrite
+  to the same one share a copy). Redirects and firewall rules see the public
+  URL. A purge by path names the rewritten path.
+
+### Purge and settings
+
+```bash
+cubecli cdn cache purge <zone_uuid> /assets/app.css "/images/*"     # paths
+cubecli cdn cache purge <zone_uuid> --tag news --tag product-42      # cache tags
+cubecli cdn cache purge <zone_uuid> --host www.example.com           # one hostname
+cubecli cdn cache purge <zone_uuid> --everything
+cubecli cdn zone update <zone_uuid> --cache-tag-header Cache-Tag     # tag purges: the origin header with the tags
+cubecli cdn zone update <zone_uuid> --compression                    # Brotli, Zstandard or gzip for text; off by default
+```
+
+Purge by tag needs the zone's cache tag header; files cached before it was set
+have no tags, so purge everything once after setting or renaming it. Pass an
+empty `--cache-tag-header ""` to turn tag purges off.
 
 ### WAF and limits
 
