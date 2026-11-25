@@ -73,9 +73,15 @@ cubecli cdn zone update <zone_uuid> --domain cdn.example.com
 
 Origins: `--url` (full URL) or `--address` + `--port` + `--protocol`. Several
 origins balance by `--weight`/`--priority`; `--backup` marks a fallback.
-Health checks hit `--health-path` (default `/health`): set it to a path that
-returns 200 on the origin, or pass `--no-health-check`, otherwise a healthy
-origin may be marked down.
+The health check is a TCP connect by default, so it does not request any path.
+An HTTP check is opt-in: `--health-type http --health-path /ping --health-expect 200`
+(also `--health-method HEAD`, `--health-interval`, `--health-threshold`). Pick a
+path that answers 2xx/3xx without cookies, because the edge sends no session.
+An HTTP check that fails takes the origin out, and if it is the only origin of
+the zone the zone answers 503. All the origins of a zone share one check, the
+one of the first origin by priority with its check enabled; the check flags of
+the others are stored and do not apply. `--no-health-check` turns it off, and the
+origin then shows `not checked` in `cubecli cdn origin list` (the API says `unknown`).
 
 An Object Storage bucket can be an origin too: `cubecli cdn origin create
 <zone_uuid> --name photos --bucket photos` (name or uuid, no address flags).
@@ -132,7 +138,11 @@ Rules apply in `--priority` order (lower first, default 100).
   the configured value.
 - Unknown fields in limit actions are rejected (422). Rule validation errors
   return 422 with the offending field; fix it and retry.
-- An allow-list country rule blocks everyone else: confirm with the user.
+- `allow_ips` and `allow_countries` mean only these: when not empty, a client
+  that is not on the list gets 403 (they used to be ignored). The block list
+  wins. In `allow_countries`, `XX` is a client of no known country, blocked
+  unless `XX` is listed. An IPv6 client is not on a list of IPv4 addresses.
+  Confirm an allow list with the user: it blocks everyone else.
 
 ### Metrics
 

@@ -140,12 +140,22 @@ one of your Object Storage buckets (--bucket): the CDN then reads the bucket wit
 read-only key it manages, and deleting the origin disconnects the bucket. A bucket
 can be the origin of one zone at a time.
 
+The health check is a TCP connect by default. --health-type http makes the edge request
+--health-path and take the origin out when the answer is not one of --health-expect (if it
+is the only origin of the zone, the zone answers 503). All the origins of a zone share one
+check: the one of the first origin by priority that has its check enabled.
+
 Usage: `cubecli cdn origin create <zone_uuid> [flags]`
 
 - `--backup`: Mark origin as backup
 - `--base-path string`: Base path for the origin
 - `--bucket string`: Object Storage bucket (name or uuid) to serve through this zone
+- `--health-expect string`: Statuses or classes an http health check accepts, up to 8 separated by spaces (default "2xx 3xx"), e.g. "200 301"
+- `--health-interval int`: Seconds between health checks from each edge node, 5 to 300 (default 10)
+- `--health-method string`: Method of an http health check: GET (default) or HEAD
 - `--health-path string`: Health check path (default /health)
+- `--health-threshold int`: Results in a row that change the health status, 1 to 10 (default 3)
+- `--health-type string`: Health check type: tcp (default) or http
 - `--host-header string`: Host header override
 - `--no-health-check`: Disable health checks
 - `--no-verify-ssl`: Disable SSL verification
@@ -161,6 +171,7 @@ Examples:
 
 ```
   cubecli cdn origin create <zone_uuid> --name web --url https://origin.example.com
+  cubecli cdn origin create <zone_uuid> --name web --url https://origin.example.com --health-type http --health-path /ping --health-expect 200
   cubecli cdn origin create <zone_uuid> --name photos --bucket photos
 ```
 
@@ -188,6 +199,11 @@ Update a CDN origin
 Usage: `cubecli cdn origin update <zone_uuid> <origin_uuid> [flags]`
 
 - `--base-path string`: New base path
+- `--health-expect string`: Statuses or classes an http health check accepts, up to 8 separated by spaces (default "2xx 3xx"), e.g. "200 301"
+- `--health-interval int`: Seconds between health checks from each edge node, 5 to 300 (default 10)
+- `--health-method string`: Method of an http health check: GET (default) or HEAD
+- `--health-threshold int`: Results in a row that change the health status, 1 to 10 (default 3)
+- `--health-type string`: Health check type: tcp (default) or http
 - `--host-header string`: New host header override
 - `--priority int`: New priority
 - `--protocol string`: New protocol
@@ -287,14 +303,26 @@ Examples:
 
 Create a new WAF rule
 
+Create a WAF rule. In a firewall_ip or firewall_country rule, allow_ips and
+allow_countries mean only these: when the list is not empty, a client that is not on it
+gets a 403, and block_ips and block_countries win over the allow lists. In allow_countries,
+XX is a client of no known country (blocked unless XX is listed). An IPv6 client is not on a
+list of IPv4 addresses.
+
 Usage: `cubecli cdn waf create <zone_uuid> [flags]`
 
 - `--disabled`: Create rule in disabled state
-- `-a, --action string`: Action configuration (JSON string) (required)
+- `-a, --action string`: Action configuration (JSON string); allow_ips and allow_countries mean only these (required)
 - `-m, --match string`: Match conditions (JSON string)
 - `-n, --name string`: Name of the WAF rule (required)
 - `-p, --priority int`: Rule priority (default 100)
 - `-t, --type string`: WAF rule type (required)
+
+Examples:
+
+```
+  cubecli cdn waf create <zone_uuid> --name eu-only --type firewall_country --action '{"allow_countries":["ES","FR","XX"]}'
+```
 
 ## `cubecli cdn waf delete`
 
