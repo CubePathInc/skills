@@ -199,3 +199,41 @@ cubecli cdn metrics blocked <zone_uuid> --json        # WAF effect
 Other breakdowns: `bandwidth`, `requests`, `pops`, `top-countries`, `top-asn`,
 `top-user-agents`, `file-extensions`. For "the site is slow" or "costs are up",
 start with `summary`, then `cache` and `top-urls`.
+
+### Security events and managed WAF (detection)
+
+Two different things, do not mix them up:
+
+- **WAF rules** (`cdn waf ...`, above) block or limit traffic the user chooses.
+- **Managed WAF** is a rule set CubePath runs for the zone. It only detects and
+  logs: it blocks nothing, does not read the request body, does not evaluate
+  responses served from cache and records at most 8 rule ids per request.
+  Levels are 1 (fewest false positives) and 2.
+
+```bash
+cubecli cdn zone update <zone_uuid> --waf-mode log --waf-level 1
+cubecli cdn zone update <zone_uuid> --waf-exclude-rule-ids 942100,941100 --waf-exclude-categories sqli
+cubecli cdn zone update <zone_uuid> --waf-mode off
+cubecli cdn metrics waf <zone_uuid> --minutes 1440 --json        # evaluated, flagged, would_block, top rules
+cubecli cdn metrics waf-events <zone_uuid> --min-score 5 --json  # the flagged requests
+```
+
+`would_block` counts a score of 5 or more and is only an estimate of what a
+blocking mode could stop. A high `flagged` share on one rule usually means a
+false positive: offer to exclude that rule id or category instead of leaving it.
+
+Security events list what the zone's rules blocked, rate limited or
+challenged:
+
+```bash
+cubecli cdn events <zone_uuid> --minutes 1440 --action blocked --json
+cubecli cdn events <zone_uuid> --country ES --path-prefix /admin --all --json
+```
+
+- Events are kept for 30 days and start the day the feature was enabled; there
+  is no history before that. Only the path is stored, never the query string.
+- Challenged requests only appear with `--action challenged`.
+- Visitor IPs are personal data of the zone's end users. Only members with the
+  permission to see them get `client_ip` and `user_agent`; for the others both
+  are null. Do not copy visitor IPs into tickets, chats or files unless the user
+  asks for it.

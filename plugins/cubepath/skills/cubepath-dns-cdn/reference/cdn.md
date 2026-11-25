@@ -33,6 +33,41 @@ Show the latest 20 purges and their progress per edge location
 
 Usage: `cubecli cdn cache purges <zone_uuid>`
 
+## `cubecli cdn events`
+
+List the blocked, rate limited and challenged requests of a zone
+
+List the security events of a zone: requests that were blocked, rate limited or
+(with --action challenged) sent to a challenge. Events are kept for 30 days and
+start the day the feature was enabled. Only the path of the request is stored,
+never the query string.
+
+Visitor IPs are shown only to members with the permission to see them; for the
+others the IP column is "-".
+
+Usage: `cubecli cdn events <zone_uuid> [flags]`
+
+- `--action string`: blocked, rate_limited or challenged (challenged is left out by default)
+- `--all`: Follow the cursor and print up to 20 pages
+- `--asn int`: Autonomous system number
+- `--client-ip string`: Visitor IP (needs the permission to see visitor IPs)
+- `--country string`: Two letter country code
+- `--cursor string`: Continue from the cursor of a previous page
+- `--path-prefix string`: Path starts with
+- `--reason string`: Block reason, for example blocked_ip
+- `--request-id string`: Request id
+- `--rule string`: UUID of the rule that acted
+- `--status int`: Response status code
+- `-l, --limit int`: Events per page (1 to 200) (default 50)
+- `-m, --minutes int`: Time range in minutes (1 to 43200) (default 60)
+
+Examples:
+
+```
+  cubecli cdn events <zone_uuid> --minutes 1440 --action blocked
+  cubecli cdn events <zone_uuid> --country ES --path-prefix /admin --all
+```
+
 ## `cubecli cdn metrics bandwidth`
 
 Show CDN bandwidth metrics
@@ -136,6 +171,30 @@ Usage: `cubecli cdn metrics top-user-agents <zone_uuid> [flags]`
 
 - `-l, --limit int`: Maximum number of results (default 20)
 - `-m, --minutes int`: Time range in minutes (default 60)
+
+## `cubecli cdn metrics waf`
+
+Show what the managed WAF (detection) found
+
+Show what the managed WAF found in a zone: requests evaluated, flagged, the ones
+that would be blocked (score 5 or more, indicative) and the rules, paths and
+countries seen most. The managed WAF only detects and logs: it does not block,
+does not inspect the body and does not evaluate what is served from cache.
+
+Usage: `cubecli cdn metrics waf <zone_uuid> [flags]`
+
+- `-m, --minutes int`: Time range in minutes (1 to 1440) (default 60)
+
+## `cubecli cdn metrics waf-events`
+
+List the requests the managed WAF flagged
+
+Usage: `cubecli cdn metrics waf-events <zone_uuid> [flags]`
+
+- `--min-score int`: Only requests with at least this score
+- `--rule-id string`: Only requests that matched this rule id
+- `-l, --limit int`: Maximum number of events (1 to 200) (default 50)
+- `-m, --minutes int`: Time range in minutes (1 to 1440) (default 60)
 
 ## `cubecli cdn origin create`
 
@@ -440,5 +499,9 @@ Usage: `cubecli cdn zone update <zone_uuid> [flags]`
 - `--certificate string`: SSL certificate
 - `--compression`: Compress text responses at the edge; off by default, with it off nothing is compressed, gzip included (--compression=false to turn it off)
 - `--ssl-type string`: SSL type
+- `--waf-exclude-categories stringSlice`: Categories the managed WAF ignores (replaces the list, up to 64; pass an empty value to clear)
+- `--waf-exclude-rule-ids intSlice`: Rule ids the managed WAF ignores (replaces the list, up to 256; pass an empty value to clear)
+- `--waf-level int`: Managed WAF sensitivity level: 1 or 2
+- `--waf-mode string`: Managed WAF detection mode: off or log (log only, nothing is blocked)
 - `-d, --domain string`: Custom domain
 - `-n, --name string`: New name for the CDN zone
